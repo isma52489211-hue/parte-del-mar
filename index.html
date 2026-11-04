@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Parte del Mar</title>
+
+  <style>
+    /* ---------- Colores y tipografía generales ---------- */
+    :root {
+      --fondo: #eef4f8;
+      --tarjeta: #ffffff;
+      --texto: #1b2a38;
+      --suave: #5b6b7a;
+      --mar: #0b5c8a;
+      --error-fondo: #fdecec;
+      --error-texto: #a12626;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      line-height: 1.4;
+    }
+
+    main {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 1.8rem;
+      color: var(--mar);
+    }
+
+    .subtitulo {
+      margin: 0 0 20px;
+      color: var(--suave);
+    }
+
+    /* ---------- Desplegable de puertos ---------- */
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    select {
+      width: 100%;
+      font-size: 1rem;
+      padding: 12px;
+      border: 1px solid #c4d3df;
+      border-radius: 10px;
+      background: var(--tarjeta);
+      color: var(--texto);
+    }
+
+    /* ---------- Mensajes (cargando / error) ---------- */
+    #estado {
+      margin: 20px 0 0;
+      min-height: 1.4em;
+      color: var(--suave);
+    }
+
+    #estado.error {
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--error-fondo);
+      color: var(--error-texto);
+    }
+
+    /* ---------- Tarjetas de cada día ---------- */
+    #tarjetas {
+      display: grid;
+      grid-template-columns: 1fr;          /* móvil: una columna */
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    @media (min-width: 560px) {
+      #tarjetas { grid-template-columns: repeat(3, 1fr); }  /* pantalla ancha: tres columnas */
+    }
+
+    .tarjeta {
+      background: var(--tarjeta);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .tarjeta h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+
+    .dato {
+      display: flex;
+      justify-content: space-between;
+      margin: 4px 0;
+    }
+
+    .dato span:first-child { color: var(--suave); }
+    .dato span:last-child  { font-weight: 600; }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>Parte del Mar</h1>
+    <p class="subtitulo">Previsión de 3 días en puertos andaluces</p>
+
+    <label for="puerto">Elige un puerto</label>
+    <select id="puerto">
+      <option value="">— Selecciona —</option>
+      <option value="huelva">Huelva</option>
+      <option value="cadiz">Cádiz</option>
+      <option value="almeria">Almería</option>
+      <option value="malaga">Málaga</option>
+    </select>
+
+    <p id="estado"></p>
+    <div id="tarjetas"></div>
+  </main>
+
+  <script>
+    // 1) Coordenadas de cada puerto (aprox. en la zona portuaria)
+    const PUERTOS = {
+      huelva:  { nombre: "Huelva",  lat: 37.2614, lon: -6.9447 },
+      cadiz:   { nombre: "Cádiz",   lat: 36.5298, lon: -6.2925 },
+      almeria: { nombre: "Almería", lat: 36.8340, lon: -2.4637 },
+      malaga:  { nombre: "Málaga",  lat: 36.7213, lon: -4.4214 }
+    };
+
+    // 2) Nombres en español para formatear la fecha ("miércoles 4 nov")
+    const DIAS  = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+    const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+
+    // 3) Referencias a los elementos de la página
+    const selector = document.getElementById("puerto");
+    const estado   = document.getElementById("estado");
+    const tarjetas = document.getElementById("tarjetas");
+
+    // Contador para ignorar respuestas antiguas si se cambia de puerto muy rápido
+    let peticionActual = 0;
+
+    // Convierte "2026-11-04" en "miércoles 4 nov"
+    function formatearFecha(textoFecha) {
+      const [anio, mes, dia] = textoFecha.split("-").map(Number);
+      const fecha = new Date(anio, mes - 1, dia);   // fecha local, sin desfase horario
+      return `${DIAS[fecha.getDay()]} ${dia} ${MESES[mes - 1]}`;
+    }
+
+    function mostrarMensaje(texto, esError) {
+      estado.textContent = texto;
+      estado.className = esError ? "error" : "";
+    }
+
+    // 4) Pide la previsión a Open-Meteo y pinta las tarjetas
+    async function cargarPrevision(clave) {
+      tarjetas.innerHTML = "";
+      if (!clave) { mostrarMensaje("", false); return; }
+
+      const puerto = PUERTOS[clave];
+      const miPeticion = ++peticionActual;
+      mostrarMensaje("Cargando…", false);
+
+      const url = "https://api.open-meteo.com/v1/forecast"
+        + `?latitude=${puerto.lat}&longitude=${puerto.lon}`
+        + "&daily=temperature_2m_max,wind_speed_10m_max"
+        + "&timezone=Europe/Madrid&forecast_days=3";
+
+      try {
+        const respuesta = await fetch(url);
+        if (!respuesta.ok) throw new Error("Respuesta del servidor: " + respuesta.status);
+        const datos = await respuesta.json();
+
+        if (miPeticion !== peticionActual) return;   // el usuario ya eligió otro puerto
+
+        const d = datos.daily;
+        tarjetas.innerHTML = d.time.map((fecha, i) => `
+          <article class="tarjeta">
+            <h2>${formatearFecha(fecha)}</h2>
+            <p class="dato"><span>Temp. máxima</span><span>${Math.round(d.temperature_2m_max[i])} °C</span></p>
+            <p class="dato"><span>Viento máximo</span><span>${Math.round(d.wind_speed_10m_max[i])} km/h</span></p>
+          </article>
+        `).join("");
+
+        mostrarMensaje(`Previsión para ${puerto.nombre}`, false);
+      } catch (error) {
+        if (miPeticion !== peticionActual) return;
+        console.error(error);
+        mostrarMensaje("No se pudo cargar la previsión. Comprueba tu conexión a internet e inténtalo de nuevo.", true);
+      }
+    }
+
+    // 5) Cada vez que cambia el desplegable, cargamos ese puerto
+    selector.addEventListener("change", () => cargarPrevision(selector.value));
+  </script>
+</body>
+</html>
