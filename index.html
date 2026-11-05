@@ -105,6 +105,14 @@
       margin: 4px 0;
     }
 
+    .tarjeta h3 {
+      margin: 12px 0 2px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--mar);
+    }
+
     .dato span:first-child { color: var(--suave); }
     .dato span:last-child  { font-weight: 600; }
   </style>
@@ -113,7 +121,7 @@
 <body>
   <main>
     <h1>Parte del Mar</h1>
-    <p class="subtitulo">Previsión de 3 días en puertos andaluces</p>
+    <p class="subtitulo">Tiempo y estado del mar a 3 días en puertos andaluces</p>
 
     <label for="puerto">Elige un puerto</label>
     <select id="puerto">
@@ -129,12 +137,15 @@
   </main>
 
   <script>
-    // 1) Coordenadas de cada puerto (aprox. en la zona portuaria)
+    // 1) Coordenadas de cada puerto.
+    //    lat/lon: el puerto (para el tiempo).
+    //    marLat/marLon: un punto en el mar frente al puerto (para las olas),
+    //    porque la previsión de oleaje no da datos sobre tierra.
     const PUERTOS = {
-      huelva:  { nombre: "Huelva",  lat: 37.2614, lon: -6.9447 },
-      cadiz:   { nombre: "Cádiz",   lat: 36.5298, lon: -6.2925 },
-      almeria: { nombre: "Almería", lat: 36.8340, lon: -2.4637 },
-      malaga:  { nombre: "Málaga",  lat: 36.7213, lon: -4.4214 }
+      huelva:  { nombre: "Huelva",  lat: 37.2614, lon: -6.9447, marLat: 37.05, marLon: -6.95 },
+      cadiz:   { nombre: "Cádiz",   lat: 36.5298, lon: -6.2925, marLat: 36.50, marLon: -6.40 },
+      almeria: { nombre: "Almería", lat: 36.8340, lon: -2.4637, marLat: 36.72, marLon: -2.45 },
+      malaga:  { nombre: "Málaga",  lat: 36.7213, lon: -4.4214, marLat: 36.65, marLon: -4.40 }
     };
 
     // 2) Nombres en español para formatear la fecha ("miércoles 4 nov")
@@ -156,9 +167,30 @@
       return `${DIAS[fecha.getDay()]} ${dia} ${MESES[mes - 1]}`;
     }
 
+    // Convierte grados (0-360) en un punto cardinal: 90 -> "E (levante)"
+    // Ojo: indica DE DÓNDE viene el viento o la ola.
+    function direccion(grados) {
+      if (grados === null || grados === undefined) return "sin dato";
+      const puntos = ["N", "NE", "E (levante)", "SE", "S", "SO", "O (poniente)", "NO"];
+      return puntos[Math.round(grados / 45) % 8];
+    }
+
+    // Redondea un número o devuelve "sin dato" si la API no lo trae
+    function numero(valor, decimales, unidad) {
+      if (valor === null || valor === undefined) return "sin dato";
+      return valor.toFixed(decimales).replace(".", ",") + " " + unidad;
+    }
+
     function mostrarMensaje(texto, esError) {
       estado.textContent = texto;
       estado.className = esError ? "error" : "";
+    }
+
+    // Pide una dirección web y devuelve sus datos; si algo va mal, lanza un error
+    async function pedirJSON(url) {
+      const respuesta = await fetch(url);
+      if (!respuesta.ok) throw new Error("Respuesta del servidor: " + respuesta.status);
+      return respuesta.json();
     }
 
     // 4) Pide la previsión a Open-Meteo y pinta las tarjetas
@@ -170,24 +202,37 @@
       const miPeticion = ++peticionActual;
       mostrarMensaje("Cargando…", false);
 
-      const url = "https://api.open-meteo.com/v1/forecast"
+      // Petición 1: el tiempo (temperatura y viento)
+      const urlTiempo = "https://api.open-meteo.com/v1/forecast"
         + `?latitude=${puerto.lat}&longitude=${puerto.lon}`
-        + "&daily=temperature_2m_max,wind_speed_10m_max"
+        + "&daily=temperature_2m_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant"
+        + "&timezone=Europe/Madrid&forecast_days=3";
+
+      // Petición 2: el mar (olas), en otra API de Open-Meteo
+      const urlMar = "https://marine-api.open-meteo.com/v1/marine"
+        + `?latitude=${puerto.marLat}&longitude=${puerto.marLon}`
+        + "&daily=wave_height_max,wave_direction_dominant"
         + "&timezone=Europe/Madrid&forecast_days=3";
 
       try {
-        const respuesta = await fetch(url);
-        if (!respuesta.ok) throw new Error("Respuesta del servidor: " + respuesta.status);
-        const datos = await respuesta.json();
+        // Lanzamos las dos peticiones a la vez y esperamos a que acaben ambas
+        const [tiempo, mar] = await Promise.all([pedirJSON(urlTiempo), pedirJSON(urlMar)]);
 
         if (miPeticion !== peticionActual) return;   // el usuario ya eligió otro puerto
 
-        const d = datos.daily;
-        tarjetas.innerHTML = d.time.map((fecha, i) => `
+        const t = tiempo.daily;
+        const m = mar.daily;
+        tarjetas.innerHTML = t.time.map((fecha, i) => `
           <article class="tarjeta">
             <h2>${formatearFecha(fecha)}</h2>
-            <p class="dato"><span>Temp. máxima</span><span>${Math.round(d.temperature_2m_max[i])} °C</span></p>
-            <p class="dato"><span>Viento máximo</span><span>${Math.round(d.wind_speed_10m_max[i])} km/h</span></p>
+            <p class="dato"><span>Temp. máxima</span><span>${Math.round(t.temperature_2m_max[i])} °C</span></p>
+            <h3>Viento</h3>
+            <p class="dato"><span>Máximo</span><span>${Math.round(t.wind_speed_10m_max[i])} km/h</span></p>
+            <p class="dato"><span>Rachas</span><span>${Math.round(t.wind_gusts_10m_max[i])} km/h</span></p>
+            <p class="dato"><span>Viene del</span><span>${direccion(t.wind_direction_10m_dominant[i])}</span></p>
+            <h3>Mar</h3>
+            <p class="dato"><span>Ola máxima</span><span>${numero(m.wave_height_max[i], 1, "m")}</span></p>
+            <p class="dato"><span>Viene del</span><span>${direccion(m.wave_direction_dominant[i])}</span></p>
           </article>
         `).join("");
 
