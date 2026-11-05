@@ -144,7 +144,7 @@
 <body>
   <main>
     <h1>Parte del Mar</h1>
-    <p class="subtitulo">Tiempo y estado del mar a 3 días en puertos andaluces</p>
+    <p class="subtitulo">Tiempo y estado del mar a 3 días frente a puertos andaluces</p>
 
     <label for="puerto">Elige un puerto</label>
     <select id="puerto">
@@ -166,9 +166,10 @@
 
   <script>
     // 1) Coordenadas de cada puerto.
-    //    lat/lon: el puerto (para el tiempo).
-    //    marLat/marLon: un punto en el mar frente al puerto (para las olas),
-    //    porque la previsión de oleaje no da datos sobre tierra.
+    //    lat/lon: el puerto (referencia de dónde está).
+    //    marLat/marLon: un punto en el mar frente al puerto. Ahí pedimos TODO
+    //    (viento, olas y temperatura), porque es donde faena la flota:
+    //    en tierra el viento suele ser más flojo y el oleaje no tiene datos.
     const PUERTOS = {
       huelva:  { nombre: "Huelva",  lat: 37.2614, lon: -6.9447, marLat: 37.05, marLon: -6.95 },
       cadiz:   { nombre: "Cádiz",   lat: 36.5298, lon: -6.2925, marLat: 36.50, marLon: -6.40 },
@@ -258,9 +259,9 @@
       const miPeticion = ++peticionActual;
       mostrarMensaje("Cargando…", false);
 
-      // Petición 1: el tiempo (temperatura y viento)
+      // Petición 1: el tiempo (temperatura y viento) en el punto de mar
       const urlTiempo = "https://api.open-meteo.com/v1/forecast"
-        + `?latitude=${puerto.lat}&longitude=${puerto.lon}`
+        + `?latitude=${puerto.marLat}&longitude=${puerto.marLon}`
         + "&daily=temperature_2m_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant"
         + "&timezone=Europe/Madrid&forecast_days=3";
 
