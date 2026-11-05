@@ -15,6 +15,9 @@
       --mar: #0b5c8a;
       --error-fondo: #fdecec;
       --error-texto: #a12626;
+      --verde: #2e9e4a;
+      --amarillo: #e0a800;
+      --rojo: #d23c3c;
     }
 
     * { box-sizing: border-box; }
@@ -113,6 +116,26 @@
       color: var(--mar);
     }
 
+    /* ---------- Semáforo ---------- */
+    .tarjeta.verde    { border-top: 8px solid var(--verde); }
+    .tarjeta.amarillo { border-top: 8px solid var(--amarillo); }
+    .tarjeta.rojo     { border-top: 8px solid var(--rojo); }
+
+    .semaforo {
+      margin: 0 0 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+    }
+    .verde .semaforo    { background: #e3f4e6; color: #1d5e2b; }
+    .amarillo .semaforo { background: #fdf3d3; color: #6b4e00; }
+    .rojo .semaforo     { background: #fbe1e1; color: #8a1f1f; }
+
+    .aviso {
+      margin: 24px 0 0;
+      font-size: 0.85rem;
+      color: var(--suave);
+    }
+
     .dato span:first-child { color: var(--suave); }
     .dato span:last-child  { font-weight: 600; }
   </style>
@@ -134,6 +157,11 @@
 
     <p id="estado"></p>
     <div id="tarjetas"></div>
+
+    <p class="aviso">
+      Colores orientativos (rojo: viento ≥ 50 km/h u ola ≥ 2,5 m; amarillo: viento ≥ 39 km/h u ola ≥ 1,25 m).
+      No sustituye al parte oficial de AEMET ni a la decisión de Capitanía o la cofradía.
+    </p>
   </main>
 
   <script>
@@ -147,6 +175,34 @@
       almeria: { nombre: "Almería", lat: 36.8340, lon: -2.4637, marLat: 36.72, marLon: -2.45 },
       malaga:  { nombre: "Málaga",  lat: 36.7213, lon: -4.4214, marLat: 36.65, marLon: -4.40 }
     };
+
+    // LÍMITES DEL SEMÁFORO (orientativos, cámbialos aquí cuando tengas los de la lonja)
+    //  - Viento: escala Beaufort. Fuerza 6 (39-49 km/h) = peligroso para barcos pequeños.
+    //            Fuerza 7 (50 km/h o más) = umbral de aviso amarillo costero de AEMET.
+    //  - Ola: escala Douglas. 1,25 m = marejada fuerte; 2,5 m = mar gruesa.
+    const LIMITES = {
+      vientoAmarillo: 39,   // km/h
+      vientoRojo:     50,   // km/h
+      olaAmarilla:    1.25, // metros
+      olaRoja:        2.5   // metros
+    };
+
+    // Decide el color de un día y explica por qué
+    function semaforo(viento, ola) {
+      const motivosRojo = [];
+      const motivosAmarillo = [];
+
+      if (viento >= LIMITES.vientoRojo) motivosRojo.push("viento fuerte");
+      else if (viento >= LIMITES.vientoAmarillo) motivosAmarillo.push("viento fresco");
+
+      if (ola === null || ola === undefined) motivosAmarillo.push("falta el dato de ola");
+      else if (ola >= LIMITES.olaRoja) motivosRojo.push("mar gruesa");
+      else if (ola >= LIMITES.olaAmarilla) motivosAmarillo.push("marejada fuerte");
+
+      if (motivosRojo.length)     return { color: "rojo",     texto: "Probablemente no sale",  motivo: motivosRojo.join(" y ") };
+      if (motivosAmarillo.length) return { color: "amarillo", texto: "Dudoso",                 motivo: motivosAmarillo.join(" y ") };
+      return                             { color: "verde",    texto: "Probablemente sale",     motivo: "viento y mar dentro de límites" };
+    }
 
     // 2) Nombres en español para formatear la fecha ("miércoles 4 nov")
     const DIAS  = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
@@ -222,9 +278,12 @@
 
         const t = tiempo.daily;
         const m = mar.daily;
-        tarjetas.innerHTML = t.time.map((fecha, i) => `
-          <article class="tarjeta">
+        tarjetas.innerHTML = t.time.map((fecha, i) => {
+          const s = semaforo(t.wind_speed_10m_max[i], m.wave_height_max[i]);
+          return `
+          <article class="tarjeta ${s.color}">
             <h2>${formatearFecha(fecha)}</h2>
+            <p class="semaforo"><strong>${s.texto}</strong><br><small>${s.motivo}</small></p>
             <p class="dato"><span>Temp. máxima</span><span>${Math.round(t.temperature_2m_max[i])} °C</span></p>
             <h3>Viento</h3>
             <p class="dato"><span>Máximo</span><span>${Math.round(t.wind_speed_10m_max[i])} km/h</span></p>
@@ -234,7 +293,8 @@
             <p class="dato"><span>Ola máxima</span><span>${numero(m.wave_height_max[i], 1, "m")}</span></p>
             <p class="dato"><span>Viene del</span><span>${direccion(m.wave_direction_dominant[i])}</span></p>
           </article>
-        `).join("");
+        `;
+        }).join("");
 
         mostrarMensaje(`Previsión para ${puerto.nombre}`, false);
       } catch (error) {
