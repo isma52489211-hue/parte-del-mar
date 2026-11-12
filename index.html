@@ -167,7 +167,7 @@
     <p class="aviso">
       Viento y rachas en km/h. Colores orientativos.
       Tiempo: rojo con viento ≥ 50 km/h u ola ≥ 2,5 m; amarillo con viento ≥ 39 km/h u ola ≥ 1,25 m.
-      Además: vedas conocidas (rojo), luna llena en cerco (amarillo, por confirmar) y fines de semana en España (amarillo, por confirmar).
+      Además: vedas conocidas del BOE (rojo), luna llena en cerco (amarillo, por confirmar) y fines de semana en España (amarillo, por confirmar).
       No sustituye al parte oficial ni a la decisión de Capitanía o la cofradía.
     </p>
   </main>
@@ -214,11 +214,15 @@
     ];
 
     // VEDAS Y PARADAS CONOCIDAS (fechas "AAAA-MM-DD", ambas incluidas).
+    //  especie: si está, la veda solo afecta a esa especie; si no, a todo el arte.
     // Añade aquí las que te confirmen en la lonja o veas en el BOE.
     const VEDAS = [
-      { zonas: ["huelva", "cadiz"], arte: "cerco", desde: "2026-11-03", hasta: "2027-01-31",
-        motivo: "parada del cerco del Golfo de Cádiz",
-        fuente: "BOE-A-2026-6300 (fin el 2 nov y 3 meses de parada; fecha final por confirmar)" }
+      { zonas: ["huelva", "cadiz"], arte: "cerco", desde: "2026-12-01", hasta: "2027-01-31",
+        motivo: "veda anual del cerco del Golfo de Cádiz",
+        fuente: "Orden AAA/1406/2016, citada en BOE-A-2026-2129 (1 dic - 31 ene, todos los años)" },
+      { zonas: ["huelva", "cadiz"], arte: "cerco", especie: "sardina", desde: "2026-11-03", hasta: "2027-02-02",
+        motivo: "parada de la sardina en el Golfo de Cádiz",
+        fuente: "BOE-A-2026-6300 (cierre el 2 nov 2026, 3 meses de parada; reapertura según nueva resolución)" }
     ];
 
     // LÍMITES DE TIEMPO (escalas Beaufort y Douglas; umbral de aviso de AEMET)
@@ -285,8 +289,16 @@
     }
 
     // ¿Hay una veda para esta zona, arte y fecha?
-    function buscarVeda(zonaId, arte, texto) {
-      return VEDAS.find(v => v.zonas.includes(zonaId) && v.arte === arte && texto >= v.desde && texto <= v.hasta);
+    // Sin especie: solo vedas de todo el arte. Con especie: también las de esa especie.
+    function buscarVeda(zonaId, arte, texto, especieId) {
+      return VEDAS.find(v => v.zonas.includes(zonaId) && v.arte === arte
+        && (!v.especie || v.especie === especieId)
+        && texto >= v.desde && texto <= v.hasta);
+    }
+
+    // Vedas de una sola especie activas en una zona y un día (para avisarlas en la tarjeta)
+    function vedasDeEspecie(zonaId, texto) {
+      return VEDAS.filter(v => v.especie && v.zonas.includes(zonaId) && texto >= v.desde && texto <= v.hasta);
     }
 
     // =====================================================================
@@ -311,13 +323,13 @@
     }
 
     // Color de un arte en una zona y un día, con todos los motivos
-    function colorArte(zona, arte, dia) {
+    function colorArte(zona, arte, dia, especieId) {
       const t = colorTiempo(dia.viento, dia.ola);
       let color = t.color;
       const motivos = [...t.motivos];
       const subir = (c, m) => { motivos.push(m); if (ORDEN[c] > ORDEN[color]) color = c; };
 
-      const veda = buscarVeda(zona.id, arte, dia.fecha);
+      const veda = buscarVeda(zona.id, arte, dia.fecha, especieId);
       if (veda) subir("rojo", "veda: " + veda.motivo);
 
       if (ARTES[arte].luna && cercaDeLunaLlena(dia.fecha)) subir("amarillo", "luna llena");
@@ -339,7 +351,7 @@
         const datos = datosPorZona[zonaId];
         if (!datos) return;                       // zona sin datos: no cuenta
         const zona = ZONAS.find(z => z.id === zonaId);
-        const c = colorArte(zona, arte, datos[indiceDia]).color;
+        const c = colorArte(zona, arte, datos[indiceDia], especie.id).color;
         puntos.push({ verde: 1, amarillo: 0.5, rojo: 0 }[c]);
       });
       if (!puntos.length) return null;
@@ -444,10 +456,14 @@
             const porque = c.motivos.length ? c.motivos.join(", ") : "todo en orden";
             return `<div class="arte ${c.color}"><strong>${ARTES[arte].nombre}: ${c.texto}</strong><small>${porque}</small></div>`;
           }).join("");
+          const avisos = vedasDeEspecie(zona.id, dia.fecha).map(v => {
+            const nombre = ESPECIES.find(e => e.id === v.especie).nombre;
+            return `<div class="arte rojo"><strong>${nombre}: en veda</strong><small>${v.motivo}</small></div>`;
+          }).join("");
           return `<div class="dia">
                     <div class="fecha">${corta(dia.fecha)}</div>
                     <div class="tiempo">Ola ${numero(dia.ola, 1)} m · Viento ${numero(dia.viento, 0)} · Rachas ${numero(dia.rachas, 0)}</div>
-                    ${artes}
+                    ${artes}${avisos}
                   </div>`;
         }).join("");
         return `<article class="zona caja"><h3>${zona.nombre}</h3><p class="que">${zona.que}</p>
