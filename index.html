@@ -31,7 +31,7 @@
     }
 
     main {
-      max-width: 640px;
+      max-width: 720px;
       margin: 0 auto;
       padding: 24px 16px 40px;
     }
@@ -43,141 +43,154 @@
     }
 
     .subtitulo {
-      margin: 0 0 20px;
+      margin: 0 0 16px;
       color: var(--suave);
     }
 
-    /* ---------- Desplegable de puertos ---------- */
-    label {
-      display: block;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    select {
-      width: 100%;
+    button {
       font-size: 1rem;
-      padding: 12px;
-      border: 1px solid #c4d3df;
+      padding: 10px 16px;
+      border: 0;
       border-radius: 10px;
-      background: var(--tarjeta);
-      color: var(--texto);
+      background: var(--mar);
+      color: #fff;
     }
 
     /* ---------- Mensajes (cargando / error) ---------- */
     #estado {
-      margin: 20px 0 0;
+      margin: 16px 0 0;
       min-height: 1.4em;
       color: var(--suave);
     }
 
-    #estado.error {
+    .error {
       padding: 12px;
       border-radius: 10px;
       background: var(--error-fondo);
       color: var(--error-texto);
     }
 
-    /* ---------- Tarjetas de cada día ---------- */
-    #tarjetas {
+    /* ---------- Resumen de mañana y pasado ---------- */
+    #resumen {
       display: grid;
-      grid-template-columns: 1fr;          /* móvil: una columna */
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-top: 16px;
     }
 
-    @media (min-width: 560px) {
-      #tarjetas { grid-template-columns: repeat(3, 1fr); }  /* pantalla ancha: tres columnas */
-    }
-
-    .tarjeta {
+    .resumen-dia {
       background: var(--tarjeta);
       border-radius: 12px;
-      padding: 16px;
+      padding: 14px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
-    .tarjeta h2 {
-      margin: 0 0 10px;
+    .resumen-dia h2 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+    }
+
+    .cuenta { margin: 2px 0; }
+
+    .punto {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: -1px;
+    }
+    .punto.verde    { background: var(--verde); }
+    .punto.amarillo { background: var(--amarillo); }
+    .punto.rojo     { background: var(--rojo); }
+
+    /* ---------- Una tarjeta por zona ---------- */
+    #zonas {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .zona {
+      background: var(--tarjeta);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .zona h3 {
+      margin: 0;
       font-size: 1.05rem;
     }
 
-    .dato {
-      display: flex;
-      justify-content: space-between;
-      margin: 4px 0;
+    .zona .que {
+      margin: 0 0 10px;
+      font-size: 0.85rem;
+      color: var(--suave);
     }
 
-    .tarjeta h3 {
-      margin: 12px 0 2px;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--mar);
+    .dias {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
     }
 
-    /* ---------- Semáforo ---------- */
-    .tarjeta.verde    { border-top: 8px solid var(--verde); }
-    .tarjeta.amarillo { border-top: 8px solid var(--amarillo); }
-    .tarjeta.rojo     { border-top: 8px solid var(--rojo); }
-
-    .semaforo {
-      margin: 0 0 8px;
-      padding: 8px 10px;
+    .dia {
       border-radius: 8px;
+      padding: 8px;
+      font-size: 0.8rem;
+      border-top: 6px solid transparent;
     }
-    .verde .semaforo    { background: #e3f4e6; color: #1d5e2b; }
-    .amarillo .semaforo { background: #fdf3d3; color: #6b4e00; }
-    .rojo .semaforo     { background: #fbe1e1; color: #8a1f1f; }
+    .dia.verde    { background: #e3f4e6; border-color: var(--verde);    color: #1d5e2b; }
+    .dia.amarillo { background: #fdf3d3; border-color: var(--amarillo); color: #6b4e00; }
+    .dia.rojo     { background: #fbe1e1; border-color: var(--rojo);     color: #8a1f1f; }
+
+    .dia .fecha   { font-weight: 700; color: var(--texto); }
+    .dia .veredicto { font-weight: 700; margin: 2px 0 4px; }
+    .dia .datos   { color: var(--texto); }
 
     .aviso {
       margin: 24px 0 0;
       font-size: 0.85rem;
       color: var(--suave);
     }
-
-    .dato span:first-child { color: var(--suave); }
-    .dato span:last-child  { font-weight: 600; }
   </style>
 </head>
 
 <body>
   <main>
     <h1>Parte del Mar</h1>
-    <p class="subtitulo">Tiempo y estado del mar a 3 días frente a puertos andaluces</p>
+    <p class="subtitulo">¿Sale la flota en tus zonas de compra? Previsión a 3 días.</p>
 
-    <label for="puerto">Elige un puerto</label>
-    <select id="puerto">
-      <option value="">— Selecciona —</option>
-      <option value="huelva">Huelva</option>
-      <option value="cadiz">Cádiz</option>
-      <option value="almeria">Almería</option>
-      <option value="malaga">Málaga</option>
-    </select>
+    <button id="recargar">Actualizar</button>
 
     <p id="estado"></p>
-    <div id="tarjetas"></div>
+    <div id="resumen"></div>
+    <div id="zonas"></div>
 
     <p class="aviso">
-      Colores orientativos (rojo: viento ≥ 50 km/h u ola ≥ 2,5 m; amarillo: viento ≥ 39 km/h u ola ≥ 1,25 m).
-      No sustituye al parte oficial de AEMET ni a la decisión de Capitanía o la cofradía.
+      Viento y rachas en km/h. Colores orientativos (rojo: viento ≥ 50 km/h u ola ≥ 2,5 m; amarillo: viento ≥ 39 km/h u ola ≥ 1,25 m).
+      Solo tiene en cuenta el tiempo: no incluye vedas, fines de semana, festivos ni la luna.
+      No sustituye al parte oficial ni a la decisión de Capitanía o la cofradía.
     </p>
   </main>
 
   <script>
-    // 1) Coordenadas de cada puerto.
-    //    lat/lon: el puerto (referencia de dónde está).
-    //    marLat/marLon: un punto en el mar frente al puerto. Ahí pedimos TODO
-    //    (viento, olas y temperatura), porque es donde faena la flota:
-    //    en tierra el viento suele ser más flojo y el oleaje no tiene datos.
-    const PUERTOS = {
-      huelva:  { nombre: "Huelva",  lat: 37.2614, lon: -6.9447, marLat: 37.05, marLon: -6.95 },
-      cadiz:   { nombre: "Cádiz",   lat: 36.5298, lon: -6.2925, marLat: 36.50, marLon: -6.40 },
-      almeria: { nombre: "Almería", lat: 36.8340, lon: -2.4637, marLat: 36.72, marLon: -2.45 },
-      malaga:  { nombre: "Málaga",  lat: 36.7213, lon: -4.4214, marLat: 36.65, marLon: -4.40 }
-    };
+    // 1) ZONAS DE COMPRA
+    //    Cada zona tiene un punto en el mar frente a sus puertos principales.
+    //    Ahí pedimos viento y olas, porque es donde faena la flota.
+    //    Para añadir o quitar una zona, basta con añadir o quitar una línea.
+    const ZONAS = [
+      { nombre: "Huelva",           que: "Golfo de Cádiz · Huelva, Isla Cristina, Punta Umbría", lat: 37.05, lon: -6.95 },
+      { nombre: "Cádiz",            que: "Golfo de Cádiz · Cádiz, Sanlúcar, Barbate",            lat: 36.50, lon: -6.40 },
+      { nombre: "Málaga",           que: "Alborán · Málaga, Caleta de Vélez, Fuengirola",        lat: 36.65, lon: -4.40 },
+      { nombre: "Levante",          que: "Golfo de Valencia · Valencia, Castellón, Gandía",      lat: 39.35, lon: -0.15 },
+      { nombre: "Cataluña",         que: "Costa de Barcelona y Tarragona",                       lat: 41.25, lon:  2.25 },
+      { nombre: "Galicia",          que: "Rías Baixas · Vigo, Marín, Ribeira",                   lat: 42.20, lon: -9.00 },
+      { nombre: "Italia (almeja)",  que: "Adriático norte · Chioggia, Goro",                     lat: 45.00, lon: 12.50 }
+    ];
 
-    // LÍMITES DEL SEMÁFORO (orientativos, cámbialos aquí cuando tengas los de la lonja)
+    // LÍMITES DEL SEMÁFORO (orientativos, cámbialos aquí cuando tengas datos reales)
     //  - Viento: escala Beaufort. Fuerza 6 (39-49 km/h) = peligroso para barcos pequeños.
     //            Fuerza 7 (50 km/h o más) = umbral de aviso amarillo costero de AEMET.
     //  - Ola: escala Douglas. 1,25 m = marejada fuerte; 2,5 m = mar gruesa.
@@ -193,50 +206,42 @@
       const motivosRojo = [];
       const motivosAmarillo = [];
 
-      if (viento >= LIMITES.vientoRojo) motivosRojo.push("viento fuerte");
+      if (viento === null || viento === undefined) motivosAmarillo.push("falta el dato de viento");
+      else if (viento >= LIMITES.vientoRojo) motivosRojo.push("viento fuerte");
       else if (viento >= LIMITES.vientoAmarillo) motivosAmarillo.push("viento fresco");
 
       if (ola === null || ola === undefined) motivosAmarillo.push("falta el dato de ola");
       else if (ola >= LIMITES.olaRoja) motivosRojo.push("mar gruesa");
       else if (ola >= LIMITES.olaAmarilla) motivosAmarillo.push("marejada fuerte");
 
-      if (motivosRojo.length)     return { color: "rojo",     texto: "Probablemente no sale",  motivo: motivosRojo.join(" y ") };
-      if (motivosAmarillo.length) return { color: "amarillo", texto: "Dudoso",                 motivo: motivosAmarillo.join(" y ") };
-      return                             { color: "verde",    texto: "Probablemente sale",     motivo: "viento y mar dentro de límites" };
+      if (motivosRojo.length)     return { color: "rojo",     texto: "No sale", motivo: motivosRojo.join(" y ") };
+      if (motivosAmarillo.length) return { color: "amarillo", texto: "Dudoso",  motivo: motivosAmarillo.join(" y ") };
+      return                             { color: "verde",    texto: "Sale",    motivo: "dentro de límites" };
     }
 
-    // 2) Nombres en español para formatear la fecha ("miércoles 4 nov")
-    const DIAS  = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+    // 2) Fechas en español
+    const DIAS  = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+    const DIAS_LARGOS = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
     const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
 
-    // 3) Referencias a los elementos de la página
-    const selector = document.getElementById("puerto");
-    const estado   = document.getElementById("estado");
-    const tarjetas = document.getElementById("tarjetas");
-
-    // Contador para ignorar respuestas antiguas si se cambia de puerto muy rápido
-    let peticionActual = 0;
-
-    // Convierte "2026-11-04" en "miércoles 4 nov"
-    function formatearFecha(textoFecha) {
+    // Convierte "2026-11-12" en "jue 12" (o "jueves 12 nov" si largo = true)
+    function formatearFecha(textoFecha, largo) {
       const [anio, mes, dia] = textoFecha.split("-").map(Number);
       const fecha = new Date(anio, mes - 1, dia);   // fecha local, sin desfase horario
-      return `${DIAS[fecha.getDay()]} ${dia} ${MESES[mes - 1]}`;
+      if (largo) return `${DIAS_LARGOS[fecha.getDay()]} ${dia} ${MESES[mes - 1]}`;
+      return `${DIAS[fecha.getDay()]} ${dia}`;
     }
 
-    // Convierte grados (0-360) en un punto cardinal: 90 -> "E (levante)"
-    // Ojo: indica DE DÓNDE viene el viento o la ola.
-    function direccion(grados) {
-      if (grados === null || grados === undefined) return "sin dato";
-      const puntos = ["N", "NE", "E (levante)", "SE", "S", "SO", "O (poniente)", "NO"];
-      return puntos[Math.round(grados / 45) % 8];
+    // Redondea un número o devuelve "?" si la API no lo trae
+    function numero(valor, decimales) {
+      if (valor === null || valor === undefined) return "?";
+      return valor.toFixed(decimales).replace(".", ",");
     }
 
-    // Redondea un número o devuelve "sin dato" si la API no lo trae
-    function numero(valor, decimales, unidad) {
-      if (valor === null || valor === undefined) return "sin dato";
-      return valor.toFixed(decimales).replace(".", ",") + " " + unidad;
-    }
+    // 3) Referencias a los elementos de la página
+    const estado  = document.getElementById("estado");
+    const resumen = document.getElementById("resumen");
+    const zonasEl = document.getElementById("zonas");
 
     function mostrarMensaje(texto, esError) {
       estado.textContent = texto;
@@ -250,63 +255,93 @@
       return respuesta.json();
     }
 
-    // 4) Pide la previsión a Open-Meteo y pinta las tarjetas
-    async function cargarPrevision(clave) {
-      tarjetas.innerHTML = "";
-      if (!clave) { mostrarMensaje("", false); return; }
-
-      const puerto = PUERTOS[clave];
-      const miPeticion = ++peticionActual;
-      mostrarMensaje("Cargando…", false);
-
-      // Petición 1: el tiempo (temperatura y viento) en el punto de mar
+    // 4) Pide viento y olas de UNA zona y devuelve sus 3 días ya con color
+    async function cargarZona(zona) {
       const urlTiempo = "https://api.open-meteo.com/v1/forecast"
-        + `?latitude=${puerto.marLat}&longitude=${puerto.marLon}`
-        + "&daily=temperature_2m_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant"
+        + `?latitude=${zona.lat}&longitude=${zona.lon}`
+        + "&daily=wind_speed_10m_max,wind_gusts_10m_max"
         + "&timezone=Europe/Madrid&forecast_days=3";
 
-      // Petición 2: el mar (olas), en otra API de Open-Meteo
       const urlMar = "https://marine-api.open-meteo.com/v1/marine"
-        + `?latitude=${puerto.marLat}&longitude=${puerto.marLon}`
-        + "&daily=wave_height_max,wave_direction_dominant"
+        + `?latitude=${zona.lat}&longitude=${zona.lon}`
+        + "&daily=wave_height_max"
         + "&timezone=Europe/Madrid&forecast_days=3";
 
-      try {
-        // Lanzamos las dos peticiones a la vez y esperamos a que acaben ambas
-        const [tiempo, mar] = await Promise.all([pedirJSON(urlTiempo), pedirJSON(urlMar)]);
+      const [tiempo, mar] = await Promise.all([pedirJSON(urlTiempo), pedirJSON(urlMar)]);
+      const t = tiempo.daily;
+      const m = mar.daily;
 
-        if (miPeticion !== peticionActual) return;   // el usuario ya eligió otro puerto
-
-        const t = tiempo.daily;
-        const m = mar.daily;
-        tarjetas.innerHTML = t.time.map((fecha, i) => {
-          const s = semaforo(t.wind_speed_10m_max[i], m.wave_height_max[i]);
-          return `
-          <article class="tarjeta ${s.color}">
-            <h2>${formatearFecha(fecha)}</h2>
-            <p class="semaforo"><strong>${s.texto}</strong><br><small>${s.motivo}</small></p>
-            <p class="dato"><span>Temp. máxima</span><span>${Math.round(t.temperature_2m_max[i])} °C</span></p>
-            <h3>Viento</h3>
-            <p class="dato"><span>Máximo</span><span>${Math.round(t.wind_speed_10m_max[i])} km/h</span></p>
-            <p class="dato"><span>Rachas</span><span>${Math.round(t.wind_gusts_10m_max[i])} km/h</span></p>
-            <p class="dato"><span>Viene del</span><span>${direccion(t.wind_direction_10m_dominant[i])}</span></p>
-            <h3>Mar</h3>
-            <p class="dato"><span>Ola máxima</span><span>${numero(m.wave_height_max[i], 1, "m")}</span></p>
-            <p class="dato"><span>Viene del</span><span>${direccion(m.wave_direction_dominant[i])}</span></p>
-          </article>
-        `;
-        }).join("");
-
-        mostrarMensaje(`Previsión para ${puerto.nombre}`, false);
-      } catch (error) {
-        if (miPeticion !== peticionActual) return;
-        console.error(error);
-        mostrarMensaje("No se pudo cargar la previsión. Comprueba tu conexión a internet e inténtalo de nuevo.", true);
-      }
+      return t.time.map((fecha, i) => ({
+        fecha,
+        viento: t.wind_speed_10m_max[i],
+        rachas: t.wind_gusts_10m_max[i],
+        ola: m.wave_height_max[i],
+        ...semaforo(t.wind_speed_10m_max[i], m.wave_height_max[i])
+      }));
     }
 
-    // 5) Cada vez que cambia el desplegable, cargamos ese puerto
-    selector.addEventListener("change", () => cargarPrevision(selector.value));
+    // 5) Carga TODAS las zonas a la vez y pinta el panel
+    async function cargarTodo() {
+      resumen.innerHTML = "";
+      zonasEl.innerHTML = "";
+      mostrarMensaje("Cargando…", false);
+
+      // allSettled: si una zona falla, las demás se muestran igual
+      const resultados = await Promise.allSettled(ZONAS.map(cargarZona));
+
+      const fallos = resultados.filter(r => r.status === "rejected").length;
+      if (fallos === ZONAS.length) {
+        mostrarMensaje("No se pudo cargar la previsión. Comprueba tu conexión a internet e inténtalo de nuevo.", true);
+        return;
+      }
+
+      // Tarjeta de cada zona
+      zonasEl.innerHTML = ZONAS.map((zona, z) => {
+        const r = resultados[z];
+        if (r.status === "rejected") {
+          return `
+          <article class="zona">
+            <h3>${zona.nombre}</h3>
+            <p class="que">${zona.que}</p>
+            <p class="error">No se pudieron cargar los datos de esta zona.</p>
+          </article>`;
+        }
+        return `
+          <article class="zona">
+            <h3>${zona.nombre}</h3>
+            <p class="que">${zona.que}</p>
+            <div class="dias">
+              ${r.value.map(d => `
+                <div class="dia ${d.color}">
+                  <div class="fecha">${formatearFecha(d.fecha)}</div>
+                  <div class="veredicto">${d.texto}</div>
+                  <div class="datos">Ola ${numero(d.ola, 1)} m<br>Viento ${numero(d.viento, 0)}<br>Rachas ${numero(d.rachas, 0)}</div>
+                </div>`).join("")}
+            </div>
+          </article>`;
+      }).join("");
+
+      // Resumen de mañana (día 1) y pasado mañana (día 2)
+      const correctos = resultados.filter(r => r.status === "fulfilled").map(r => r.value);
+      resumen.innerHTML = [1, 2].map(i => {
+        const cuenta = { verde: 0, amarillo: 0, rojo: 0 };
+        correctos.forEach(dias => cuenta[dias[i].color]++);
+        const titulo = (i === 1 ? "Mañana, " : "Pasado, ") + formatearFecha(correctos[0][i].fecha, true);
+        return `
+          <section class="resumen-dia">
+            <h2>${titulo}</h2>
+            <p class="cuenta"><span class="punto rojo"></span>${cuenta.rojo} no sale</p>
+            <p class="cuenta"><span class="punto amarillo"></span>${cuenta.amarillo} dudoso</p>
+            <p class="cuenta"><span class="punto verde"></span>${cuenta.verde} sale</p>
+          </section>`;
+      }).join("");
+
+      mostrarMensaje(fallos ? `Faltan datos de ${fallos} zona(s).` : "Actualizado ahora.", fallos > 0);
+    }
+
+    // 6) Al abrir la página se carga sola; el botón vuelve a cargar
+    document.getElementById("recargar").addEventListener("click", cargarTodo);
+    cargarTodo();
   </script>
 </body>
 </html>
