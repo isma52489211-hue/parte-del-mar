@@ -1,0 +1,48 @@
+# Robot que actualiza datos.json con la previsión de viento y olas.
+# Se ejecuta cada 3 horas y también a mano desde la pestaña "Actions" de GitHub.
+name: Actualizar datos
+
+on:
+  schedule:
+    - cron: "17 */3 * * *"   # minuto 17 de cada 3 horas (hora UTC)
+  workflow_dispatch:          # botón "Run workflow" para lanzarlo a mano
+
+permissions:
+  contents: write             # para poder guardar datos.json en el repositorio
+
+concurrency:
+  group: actualizar-datos
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar la herramienta de Copernicus Marine
+        run: pip install copernicusmarine
+
+      - name: Descargar previsión
+        env:
+          COPERNICUSMARINE_SERVICE_USERNAME: ${{ secrets.COPERNICUS_USUARIO }}
+          COPERNICUSMARINE_SERVICE_PASSWORD: ${{ secrets.COPERNICUS_CONTRASENA }}
+        run: python robot/actualizar.py
+
+      - name: Guardar datos.json si ha cambiado
+        run: |
+          git config user.name "robot-parte-del-mar"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add datos.json
+          if git diff --cached --quiet; then
+            echo "Sin cambios"
+          else
+            git commit -m "Actualizar datos de previsión"
+            git pull --rebase
+            git push
+          fi
