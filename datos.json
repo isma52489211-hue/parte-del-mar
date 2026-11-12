@@ -1,5 +1,5 @@
 {
- "generado": "2026-11-12T19:00+00:00",
+ "generado": "2026-11-12T19:18+00:00",
  "fechas": [
   "2026-11-12",
   "2026-11-13",
@@ -10,17 +10,17 @@
   "huelva": [
    {
     "fecha": "2026-11-12",
-    "viento": null,
+    "viento": 35.6,
     "ola": 3.11
    },
    {
     "fecha": "2026-11-13",
-    "viento": null,
+    "viento": 32.0,
     "ola": 2.0
    },
    {
     "fecha": "2026-11-14",
-    "viento": null,
+    "viento": 31.0,
     "ola": 1.26
    }
   ],
@@ -75,7 +75,7 @@
     "ola": 0.51
    }
   ],
-  "cataluna": [
+  "barcelona": [
    {
     "fecha": "2026-11-12",
     "viento": 45.4,
@@ -90,6 +90,23 @@
     "fecha": "2026-11-14",
     "viento": 28.1,
     "ola": 1.0
+   }
+  ],
+  "tarragona": [
+   {
+    "fecha": "2026-11-12",
+    "viento": 41.0,
+    "ola": 1.79
+   },
+   {
+    "fecha": "2026-11-13",
+    "viento": 43.2,
+    "ola": 1.78
+   },
+   {
+    "fecha": "2026-11-14",
+    "viento": 20.9,
+    "ola": 0.82
    }
   ],
   "galicia": [
@@ -161,7 +178,5 @@
    }
   ]
  },
- "errores": [
-  "viento huelva: HTTP Error 503: Service Unavailable"
- ]
+ "errores": []
 }
