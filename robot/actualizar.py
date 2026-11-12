@@ -29,22 +29,16 @@ SALIDA = os.path.join(os.path.dirname(__file__), "..", "datos.json")
 USER_AGENT = "parte-del-mar github.com/isma52489211-hue/parte-del-mar"
 
 # Modelos de olas de Copernicus Marine
-OLAS_IBI = "cmems_mod_ibi_wav_anfc_0.027deg_PT1H-i"   # Atlántico ibérico (unos 3 km)
-OLAS_MED = "cmems_mod_med_wav_anfc_4.2km_PT1H-i"      # Mediterráneo (4,2 km)
+MODELOS_OLAS = {
+    "ibi": "cmems_mod_ibi_wav_anfc_0.027deg_PT1H-i",   # Atlántico ibérico (unos 3 km)
+    "med": "cmems_mod_med_wav_anfc_4.2km_PT1H-i",      # Mediterráneo (4,2 km)
+}
 
-# Un punto en el mar frente a los puertos de cada zona.
-# Los "id" deben coincidir con los de la lista ZONAS de index.html.
-ZONAS = [
-    {"id": "huelva",       "lat": 37.05, "lon": -6.95, "olas": OLAS_IBI},
-    {"id": "cadiz",        "lat": 36.50, "lon": -6.40, "olas": OLAS_IBI},
-    {"id": "malaga",       "lat": 36.65, "lon": -4.40, "olas": OLAS_MED},
-    {"id": "levante",      "lat": 39.35, "lon": -0.15, "olas": OLAS_MED},
-    {"id": "cataluna",     "lat": 41.25, "lon":  2.25, "olas": OLAS_MED},
-    {"id": "galicia",      "lat": 42.20, "lon": -9.00, "olas": OLAS_IBI},
-    {"id": "it_adriatico", "lat": 43.40, "lon": 14.00, "olas": OLAS_MED},
-    {"id": "it_sicilia",   "lat": 37.40, "lon": 13.00, "olas": OLAS_MED},
-    {"id": "it_almeja",    "lat": 45.00, "lon": 12.50, "olas": OLAS_MED},
-]
+# Las zonas (un punto en el mar frente a sus puertos) están en config.json,
+# el mismo archivo que usa la app. Para añadir una zona, se cambia solo allí.
+CONFIG = os.path.join(os.path.dirname(__file__), "..", "config.json")
+with open(CONFIG, encoding="utf-8") as _archivo:
+    ZONAS = [dict(z, olas=MODELOS_OLAS[z["olas"]]) for z in json.load(_archivo)["zonas"]]
 
 
 def fechas_previstas():

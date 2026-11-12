@@ -167,206 +167,40 @@
     <p class="aviso">
       Viento en km/h. Colores orientativos.
       Tiempo: rojo con viento ≥ 50 km/h u ola ≥ 2,5 m; amarillo con viento ≥ 39 km/h u ola ≥ 1,25 m.
-      Además: vedas conocidas del BOE (rojo), luna llena en cerco (amarillo, por confirmar) y fines de semana en España (amarillo, por confirmar).
+      Además: vedas del BOE (rojo; lista en config.json), luna llena en cerco (amarillo, por confirmar) y fines de semana en España (amarillo, por confirmar).
       No sustituye al parte oficial ni a la decisión de Capitanía o la cofradía.
     </p>
   </main>
 
+  <script src="logica.js"></script>
   <script>
     // =====================================================================
-    // CONFIGURACIÓN: todo lo que se puede ajustar está en este bloque
+    // La configuración (zonas, especies, vedas, límites) está en config.json
+    // y la lógica del semáforo en logica.js. Aquí solo se pinta la página.
     // =====================================================================
 
-    // ARTES DE PESCA
-    //  luna:       true si la luna llena le afecta (cerco con luz).
-    //  finDeSemana: true si en España no suele faenar sábado y domingo.
-    //  Ambas reglas están SIN CONFIRMAR: el registro dirá si aciertan.
-    const ARTES = {
-      cerco:     { nombre: "Cerco",     luna: true,  finDeSemana: true  },
-      volante:   { nombre: "Volante",   luna: false, finDeSemana: false },
-      arrastre:  { nombre: "Arrastre",  luna: false, finDeSemana: true  },
-      marisqueo: { nombre: "Marisqueo", luna: false, finDeSemana: false }
-    };
-
-    // ZONAS: las artes que nos interesan en cada zona.
-    //  Las coordenadas del punto de mar están en robot/actualizar.py (mismos "id").
-    //  espana: true para aplicar la regla de fin de semana (solo España).
-    const ZONAS = [
-      { id: "huelva",    nombre: "Huelva",   que: "Golfo de Cádiz · Huelva, Isla Cristina, Punta Umbría", espana: true,  artes: ["cerco", "arrastre"] },
-      { id: "cadiz",     nombre: "Cádiz",    que: "Golfo de Cádiz · Cádiz, Sanlúcar, Barbate", espana: true,  artes: ["cerco", "arrastre"] },
-      { id: "malaga",    nombre: "Málaga",   que: "Alborán · Málaga, Caleta de Vélez, Fuengirola", espana: true,  artes: ["cerco", "arrastre"] },
-      { id: "levante",   nombre: "Levante",  que: "Golfo de Valencia · Valencia, Castellón, Gandía", espana: true,  artes: ["cerco", "arrastre"] },
-      { id: "cataluna",  nombre: "Cataluña", que: "Costa de Barcelona y Tarragona", espana: true,  artes: ["cerco", "arrastre"] },
-      { id: "galicia",   nombre: "Galicia",  que: "Rías Baixas · Vigo, Marín, Ribeira", espana: true,  artes: ["cerco", "arrastre", "marisqueo"],
-        enlace: { texto: "Ver zonas de marisqueo abiertas o cerradas (INTECMAR)", url: "https://www.intecmar.gal/" } },
-      { id: "it_adriatico", nombre: "Italia · Adriático central", que: "Boquerón · Ancona, San Benedetto", espana: false, artes: ["volante"] },
-      { id: "it_sicilia",   nombre: "Italia · Sicilia",           que: "Boquerón · Sciacca (lampara)", espana: false, artes: ["cerco"] },
-      { id: "it_almeja",    nombre: "Italia · Adriático norte",   que: "Almeja · Chioggia, Goro", espana: false, artes: ["marisqueo"] }
-    ];
-
-    // ESPECIES: de qué arte y de qué zonas viene cada una (supuesto inicial, ajústalo).
-    const ESPECIES = [
-      { id: "boqueron",    nombre: "Boquerón",    origen: [["huelva","cerco"],["cadiz","cerco"],["malaga","cerco"],["levante","cerco"],["cataluna","cerco"],["it_adriatico","volante"],["it_sicilia","cerco"]] },
-      { id: "sardina",     nombre: "Sardina",     origen: [["huelva","cerco"],["cadiz","cerco"],["malaga","cerco"],["levante","cerco"],["cataluna","cerco"],["galicia","cerco"]] },
-      { id: "bacaladilla", nombre: "Bacaladilla", origen: [["malaga","arrastre"],["levante","arrastre"],["cataluna","arrastre"],["galicia","arrastre"]] },
-      { id: "pijota",      nombre: "Pijota",      origen: [["huelva","arrastre"],["cadiz","arrastre"],["malaga","arrastre"],["levante","arrastre"],["cataluna","arrastre"],["galicia","arrastre"]] },
-      { id: "salmonete",   nombre: "Salmonete",   origen: [["huelva","arrastre"],["cadiz","arrastre"],["malaga","arrastre"],["levante","arrastre"],["cataluna","arrastre"]] },
-      { id: "almeja",      nombre: "Almeja",      origen: [["galicia","marisqueo"],["it_almeja","marisqueo"]] }
-    ];
-
-    // VEDAS Y PARADAS CONOCIDAS (fechas "AAAA-MM-DD", ambas incluidas).
-    //  especie: si está, la veda solo afecta a esa especie; si no, a todo el arte.
-    // Añade aquí las que te confirmen en la lonja o veas en el BOE.
-    const VEDAS = [
-      { zonas: ["huelva", "cadiz"], arte: "cerco", desde: "2026-12-01", hasta: "2027-01-31",
-        motivo: "veda anual del cerco del Golfo de Cádiz",
-        fuente: "Orden AAA/1406/2016, citada en BOE-A-2026-2129 (1 dic - 31 ene, todos los años)" },
-      { zonas: ["huelva", "cadiz"], arte: "cerco", especie: "sardina", desde: "2026-11-03", hasta: "2027-02-02",
-        motivo: "parada de la sardina en el Golfo de Cádiz",
-        fuente: "BOE-A-2026-6300 (cierre el 2 nov 2026, 3 meses de parada; reapertura según nueva resolución)" }
-    ];
-
-    // LÍMITES DE TIEMPO (escalas Beaufort y Douglas; umbral de aviso de AEMET)
-    const LIMITES = {
-      vientoAmarillo: 39,   // km/h  (fuerza 6)
-      vientoRojo:     50,   // km/h  (fuerza 7)
-      olaAmarilla:    1.25, // m     (marejada fuerte)
-      olaRoja:        2.5   // m     (mar gruesa)
-    };
-
-    // =====================================================================
-    // FUNCIONES DE APOYO
-    // =====================================================================
-
-    const DIAS  = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
-    const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-    const ORDEN = { verde: 0, amarillo: 1, rojo: 2 };
-
-    // "2026-11-12" -> objeto Date local (a mediodía, para evitar líos de horario)
-    function aFecha(texto) {
-      const [a, m, d] = texto.split("-").map(Number);
-      return new Date(a, m - 1, d, 12);
-    }
-
-    // Date -> "2026-11-12"
-    function aTexto(fecha) {
-      const m = String(fecha.getMonth() + 1).padStart(2, "0");
-      const d = String(fecha.getDate()).padStart(2, "0");
-      return `${fecha.getFullYear()}-${m}-${d}`;
-    }
-
-    function sumarDias(texto, n) {
-      const f = aFecha(texto);
-      f.setDate(f.getDate() + n);
-      return aTexto(f);
-    }
-
-    // "2026-11-12" -> "jue 12"
-    function corta(texto) {
-      const f = aFecha(texto);
-      return `${DIAS[f.getDay()]} ${f.getDate()}`;
-    }
-
-    // "2026-11-12" -> "jue 12 nov"
-    function larga(texto) {
-      const f = aFecha(texto);
-      return `${DIAS[f.getDay()]} ${f.getDate()} ${MESES[f.getMonth()]}`;
-    }
+    let L = null;   // la lógica, cuando se haya cargado config.json
 
     function numero(valor, decimales) {
       if (valor === null || valor === undefined) return "?";
       return valor.toFixed(decimales).replace(".", ",");
     }
 
-    // ¿Está la fecha a 2 días o menos de la luna llena?
-    // Cálculo astronómico aproximado: ciclo lunar medio de 29,53 días
-    // contado desde una luna nueva conocida (6 ene 2000, 18:14 UTC).
-    function cercaDeLunaLlena(texto) {
-      const CICLO = 29.530588853;
-      const LUNA_NUEVA = Date.UTC(2000, 0, 6, 18, 14);
-      const dias = (aFecha(texto).getTime() - LUNA_NUEVA) / 86400000;
-      const edad = ((dias % CICLO) + CICLO) % CICLO;   // días desde la última luna nueva
-      return Math.abs(edad - CICLO / 2) <= 2;
+    function hoyTexto() {
+      const f = new Date();
+      const m = String(f.getMonth() + 1).padStart(2, "0");
+      const d = String(f.getDate()).padStart(2, "0");
+      return `${f.getFullYear()}-${m}-${d}`;
     }
 
-    // ¿Hay una veda para esta zona, arte y fecha?
-    // Sin especie: solo vedas de todo el arte. Con especie: también las de esa especie.
-    function buscarVeda(zonaId, arte, texto, especieId) {
-      return VEDAS.find(v => v.zonas.includes(zonaId) && v.arte === arte
-        && (!v.especie || v.especie === especieId)
-        && texto >= v.desde && texto <= v.hasta);
+    // "Hoy", "Mañana", "Pasado" o "Ayer" según la fecha real
+    function etiquetaDia(fecha) {
+      const dias = Math.round((L.aFecha(fecha) - L.aFecha(hoyTexto())) / 86400000);
+      return { "-1": "Ayer", "0": "Hoy", "1": "Mañana", "2": "Pasado" }[dias] || "";
     }
 
-    // Vedas de una sola especie activas en una zona y un día (para avisarlas en la tarjeta)
-    function vedasDeEspecie(zonaId, texto) {
-      return VEDAS.filter(v => v.especie && v.zonas.includes(zonaId) && texto >= v.desde && texto <= v.hasta);
-    }
-
-    // =====================================================================
-    // EL SEMÁFORO: tiempo + veda + luna + fin de semana
-    // =====================================================================
-
-    // Color solo por el tiempo
-    function colorTiempo(viento, ola) {
-      const motivos = [];
-      let color = "verde";
-      const subir = (c, m) => { motivos.push(m); if (ORDEN[c] > ORDEN[color]) color = c; };
-
-      if (viento === null || viento === undefined) subir("amarillo", "sin dato de viento");
-      else if (viento >= LIMITES.vientoRojo) subir("rojo", "viento fuerte");
-      else if (viento >= LIMITES.vientoAmarillo) subir("amarillo", "viento fresco");
-
-      if (ola === null || ola === undefined) subir("amarillo", "sin dato de ola");
-      else if (ola >= LIMITES.olaRoja) subir("rojo", "mar gruesa");
-      else if (ola >= LIMITES.olaAmarilla) subir("amarillo", "marejada fuerte");
-
-      return { color, motivos };
-    }
-
-    // Color de un arte en una zona y un día, con todos los motivos
-    function colorArte(zona, arte, dia, especieId) {
-      const t = colorTiempo(dia.viento, dia.ola);
-      let color = t.color;
-      const motivos = [...t.motivos];
-      const subir = (c, m) => { motivos.push(m); if (ORDEN[c] > ORDEN[color]) color = c; };
-
-      const veda = buscarVeda(zona.id, arte, dia.fecha, especieId);
-      if (veda) subir("rojo", "veda: " + veda.motivo);
-
-      if (ARTES[arte].luna && cercaDeLunaLlena(dia.fecha)) subir("amarillo", "luna llena");
-
-      const diaSemana = aFecha(dia.fecha).getDay();   // 0 = domingo, 6 = sábado
-      if (zona.espana && ARTES[arte].finDeSemana && (diaSemana === 0 || diaSemana === 6)) {
-        subir("amarillo", "fin de semana");
-      }
-
-      const texto = { verde: "Sale", amarillo: "Dudoso", rojo: "No sale" }[color];
-      return { color, texto, motivos };
-    }
-
-    // Oferta prevista de una especie en un día: media de sus zonas
-    // (verde = 1, amarillo = 0,5, rojo = 0)
-    function ofertaEspecie(especie, datosPorZona, indiceDia) {
-      const puntos = [];
-      especie.origen.forEach(([zonaId, arte]) => {
-        const datos = datosPorZona[zonaId];
-        if (!datos) return;                       // zona sin datos: no cuenta
-        const zona = ZONAS.find(z => z.id === zonaId);
-        const c = colorArte(zona, arte, datos[indiceDia], especie.id).color;
-        puntos.push({ verde: 1, amarillo: 0.5, rojo: 0 }[c]);
-      });
-      if (!puntos.length) return null;
-      const media = puntos.reduce((a, b) => a + b, 0) / puntos.length;
-      if (media >= 0.67) return { nivel: "bien", texto: "Hay",       color: "verde" };
-      if (media >= 0.34) return { nivel: "poco", texto: "Poco",      color: "amarillo" };
-      return                   { nivel: "nada", texto: "Casi nada", color: "rojo" };
-    }
-
-    // =====================================================================
-    // MEMORIA DEL MÓVIL (registro y predicciones)
+    // ---------- Memoria del móvil (registro y predicciones) ----------
     // Se guarda solo en este navegador. Si no se puede, la app sigue funcionando.
-    // =====================================================================
-
     function leer(clave) {
       try { return JSON.parse(localStorage.getItem(clave)) || {}; }
       catch (e) { return {}; }
@@ -377,28 +211,15 @@
       catch (e) { return false; }
     }
 
-    // =====================================================================
-    // DATOS: los prepara el robot (robot/actualizar.py) en datos.json
-    // Viento: MET Norway (CC BY 4.0). Olas: Copernicus Marine Service.
-    // =====================================================================
-
-    async function cargarDatos() {
+    // ---------- Descargar archivos de la propia web ----------
+    async function cargarJSON(nombre) {
       // "?t=" evita que el navegador muestre una copia antigua guardada
-      const respuesta = await fetch("datos.json?t=" + Date.now());
-      if (!respuesta.ok) throw new Error("Respuesta del servidor: " + respuesta.status);
+      const respuesta = await fetch(nombre + "?t=" + Date.now());
+      if (!respuesta.ok) throw new Error(nombre + ": " + respuesta.status);
       return respuesta.json();
     }
 
-    // "Hoy", "Mañana", "Pasado" o "Ayer" según la fecha real
-    function etiquetaDia(fecha) {
-      const dias = Math.round((aFecha(fecha) - aFecha(hoyTexto())) / 86400000);
-      return { "-1": "Ayer", "0": "Hoy", "1": "Mañana", "2": "Pasado" }[dias] || "";
-    }
-
-    // =====================================================================
-    // PINTAR LA PÁGINA
-    // =====================================================================
-
+    // ---------- Pintar ----------
     const estado = document.getElementById("estado");
 
     function mostrarMensaje(texto, esError) {
@@ -409,9 +230,9 @@
     function pintarEspecies(datosPorZona, fechas) {
       const prediccionesGuardadas = leer("pdm-predicciones");
 
-      const filas = ESPECIES.map(especie => {
-        const celdas = fechas.map((fecha, i) => {
-          const o = ofertaEspecie(especie, datosPorZona, i);
+      const filas = L.ESPECIES.map(especie => {
+        const celdas = fechas.map(fecha => {
+          const o = L.ofertaEspecie(especie, datosPorZona, fecha);
           if (!o) return `<td><span class="chip">?</span></td>`;
           prediccionesGuardadas[fecha] = prediccionesGuardadas[fecha] || {};
           prediccionesGuardadas[fecha][especie.id] = o.nivel;
@@ -420,54 +241,52 @@
         return `<tr><td class="especie">${especie.nombre}</td>${celdas}</tr>`;
       }).join("");
 
-      // Guardamos lo que predice hoy para poder compararlo más adelante
+      // Guardamos lo que predice para poder compararlo más adelante
       guardar("pdm-predicciones", prediccionesGuardadas);
 
-      const cabecera = fechas.map((f, i) => `<th>${etiquetaDia(f)}<br>${corta(f)}</th>`).join("");
+      const cabecera = fechas.map(f => `<th>${etiquetaDia(f)}<br>${L.corta(f)}</th>`).join("");
       document.getElementById("especies").innerHTML =
         `<table><tr><th></th>${cabecera}</tr>${filas}</table>`;
     }
 
-    function pintarZonas(resultados) {
-      document.getElementById("zonas").innerHTML = ZONAS.map((zona, z) => {
-        const r = resultados[z];
+    function pintarZonas(datosPorZona) {
+      document.getElementById("zonas").innerHTML = L.ZONAS.map(zona => {
+        const dias = datosPorZona[zona.id];
         const enlace = zona.enlace ? `<a class="enlace" href="${zona.enlace.url}" target="_blank" rel="noopener">${zona.enlace.texto}</a>` : "";
-        if (r.status === "rejected") {
+        if (!dias) {
           return `<article class="zona caja"><h3>${zona.nombre}</h3><p class="que">${zona.que}</p>
-                  <p class="error">No se pudieron cargar los datos de esta zona.</p>${enlace}</article>`;
+                  <p class="error">Todavía no hay datos de esta zona.</p>${enlace}</article>`;
         }
-        const dias = r.value.map(dia => {
+        const columnas = dias.map(dia => {
           const artes = zona.artes.map(arte => {
-            const c = colorArte(zona, arte, dia);
+            const c = L.colorArte(zona, arte, dia);
             const porque = c.motivos.length ? c.motivos.join(", ") : "todo en orden";
-            return `<div class="arte ${c.color}"><strong>${ARTES[arte].nombre}: ${c.texto}</strong><small>${porque}</small></div>`;
+            return `<div class="arte ${c.color}"><strong>${L.ARTES[arte].nombre}: ${c.texto}</strong><small>${porque}</small></div>`;
           }).join("");
-          const avisos = vedasDeEspecie(zona.id, dia.fecha).map(v => {
-            const nombre = ESPECIES.find(e => e.id === v.especie).nombre;
+          const avisos = L.vedasDeEspecie(zona.id, dia.fecha).map(v => {
+            const nombre = L.ESPECIES.find(e => e.id === v.especie).nombre;
             return `<div class="arte rojo"><strong>${nombre}: en veda</strong><small>${v.motivo}</small></div>`;
           }).join("");
           return `<div class="dia">
-                    <div class="fecha">${corta(dia.fecha)}</div>
+                    <div class="fecha">${L.corta(dia.fecha)}</div>
                     <div class="tiempo">Ola ${numero(dia.ola, 1)} m · Viento ${numero(dia.viento, 0)}</div>
                     ${artes}${avisos}
                   </div>`;
         }).join("");
         return `<article class="zona caja"><h3>${zona.nombre}</h3><p class="que">${zona.que}</p>
-                <div class="dias">${dias}</div>${enlace}</article>`;
+                <div class="dias">${columnas}</div>${enlace}</article>`;
       }).join("");
     }
 
     // ---------- Registro ----------
     const OPCIONES = [["bien", "Hubo bien"], ["poco", "Poco"], ["nada", "No hubo"]];
 
-    function hoyTexto() { return aTexto(new Date()); }
-
     function pintarRegistro() {
+      if (!L) return;
       const hoy = hoyTexto();
-      const registro = leer("pdm-registro");
-      const deHoy = registro[hoy] || {};
+      const deHoy = leer("pdm-registro")[hoy] || {};
 
-      document.getElementById("registro").innerHTML = ESPECIES.map(e => `
+      document.getElementById("registro").innerHTML = L.ESPECIES.map(e => `
         <div class="fila-registro">
           <span class="nombre">${e.nombre}</span>
           ${OPCIONES.map(([valor, texto]) => `
@@ -485,7 +304,7 @@
       let total = 0, aciertos = 0;
 
       Object.keys(registro).forEach(fecha => {
-        const prediccion = predicciones[sumarDias(fecha, -1)] || {};
+        const prediccion = predicciones[L.sumarDias(fecha, -1)] || {};
         Object.keys(registro[fecha]).forEach(especie => {
           if (!prediccion[especie]) return;      // no había predicción guardada
           total++;
@@ -525,38 +344,28 @@
     async function cargarTodo() {
       mostrarMensaje("Cargando…", false);
 
-      let datos;
+      let config, datos;
       try {
-        datos = await cargarDatos();
+        [config, datos] = await Promise.all([cargarJSON("config.json"), cargarJSON("datos.json")]);
       } catch (e) {
         mostrarMensaje("No se pudo cargar la previsión. Comprueba tu conexión a internet e inténtalo de nuevo.", true);
         return;
       }
 
-      // Mismo formato que espera pintarZonas: una entrada por zona, con o sin datos
-      const resultados = ZONAS.map(zona => datos.zonas[zona.id]
-        ? { status: "fulfilled", value: datos.zonas[zona.id] }
-        : { status: "rejected" });
-      const datosPorZona = {};
-      ZONAS.forEach((zona, z) => {
-        if (resultados[z].status === "fulfilled") datosPorZona[zona.id] = resultados[z].value;
-      });
-      const fechas = datos.fechas;
-
-      pintarEspecies(datosPorZona, fechas);
-      pintarZonas(resultados);
-      pintarAciertos();
+      L = crearLogica(config);
+      pintarEspecies(datos.zonas, datos.fechas);
+      pintarZonas(datos.zonas);
+      pintarRegistro();
 
       // Cuándo se descargaron los datos
       const generado = new Date(datos.generado);
       const horas = Math.round((Date.now() - generado) / 3600000);
       const hora = generado.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
-      const texto = `Datos de ${larga(aTexto(generado))}, ${hora} (hace ${horas} h). Viento: MET Norway · Olas: Copernicus Marine.`;
+      const texto = `Datos de ${L.larga(L.aTexto(generado))}, ${hora} (hace ${horas} h). Viento: MET Norway · Olas: Copernicus Marine.`;
       mostrarMensaje(horas > 12 ? texto + " ¡Datos antiguos: el robot puede estar fallando!" : texto, horas > 12);
     }
 
     document.getElementById("recargar").addEventListener("click", cargarTodo);
-    pintarRegistro();
     cargarTodo();
   </script>
 </body>

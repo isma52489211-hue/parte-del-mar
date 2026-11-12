@@ -1,0 +1,78 @@
+{
+  "_ayuda": "Configuración única de Parte del Mar. La usan la app (index.html), el robot (robot/actualizar.py) y el aviso de Telegram (robot/aviso.js). Para añadir una zona: añade una entrada en 'zonas' con un punto en el MAR (lat/lon) y su modelo de olas ('ibi' = Atlántico ibérico, 'med' = Mediterráneo), y después ponla en el 'origen' de las especies que vengan de ella.",
+
+  "limites": {
+    "_fuente": "Viento: escala Beaufort (fuerza 6 = 39 km/h; fuerza 7 = 50 km/h, umbral de aviso costero de AEMET). Ola: escala Douglas (1,25 m marejada fuerte; 2,5 m mar gruesa).",
+    "vientoAmarillo": 39,
+    "vientoRojo": 50,
+    "olaAmarilla": 1.25,
+    "olaRoja": 2.5
+  },
+
+  "artes": {
+    "_nota": "luna y finDeSemana están SIN CONFIRMAR: el registro de Mercacórdoba dirá si aciertan.",
+    "cerco":     { "nombre": "Cerco",     "luna": true,  "finDeSemana": true  },
+    "volante":   { "nombre": "Volante",   "luna": false, "finDeSemana": false },
+    "arrastre":  { "nombre": "Arrastre",  "luna": false, "finDeSemana": true  },
+    "marisqueo": { "nombre": "Marisqueo", "luna": false, "finDeSemana": false }
+  },
+
+  "zonas": [
+    { "id": "huelva",       "nombre": "Huelva",    "que": "Golfo de Cádiz · Huelva, Isla Cristina, Punta Umbría", "lat": 37.05, "lon": -6.95, "olas": "ibi", "espana": true,  "artes": ["cerco", "arrastre"] },
+    { "id": "cadiz",        "nombre": "Cádiz",     "que": "Golfo de Cádiz · Cádiz, Sanlúcar, Barbate",            "lat": 36.50, "lon": -6.40, "olas": "ibi", "espana": true,  "artes": ["cerco", "arrastre"] },
+    { "id": "malaga",       "nombre": "Málaga",    "que": "Alborán · Málaga, Caleta de Vélez, Fuengirola",        "lat": 36.65, "lon": -4.40, "olas": "med", "espana": true,  "artes": ["cerco", "arrastre"] },
+    { "id": "levante",      "nombre": "Valencia",  "que": "Golfo de Valencia · Valencia, Cullera, Gandía",        "lat": 39.35, "lon": -0.15, "olas": "med", "espana": true,  "artes": ["cerco", "arrastre"] },
+    { "id": "barcelona",    "nombre": "Barcelona", "que": "Cataluña · Barcelona, Arenys de Mar",                  "lat": 41.25, "lon":  2.25, "olas": "med", "espana": true,  "artes": ["cerco", "arrastre"] },
+    { "id": "tarragona",    "nombre": "Tarragona", "que": "Cataluña · Tarragona, Cambrils, L'Ametlla de Mar",     "lat": 40.95, "lon":  1.20, "olas": "med", "espana": true,  "artes": ["cerco", "arrastre"] },
+    { "id": "galicia",      "nombre": "Galicia",   "que": "Rías Baixas · Vigo, Marín, Ribeira",                   "lat": 42.20, "lon": -9.00, "olas": "ibi", "espana": true,  "artes": ["cerco", "arrastre", "marisqueo"],
+      "enlace": { "texto": "Ver zonas de marisqueo abiertas o cerradas (INTECMAR)", "url": "https://www.intecmar.gal/" } },
+    { "id": "it_adriatico", "nombre": "Italia · Adriático central", "que": "Boquerón · Ancona, San Benedetto", "lat": 43.40, "lon": 14.00, "olas": "med", "espana": false, "artes": ["volante"] },
+    { "id": "it_sicilia",   "nombre": "Italia · Sicilia",           "que": "Boquerón · Sciacca (lampara)",     "lat": 37.40, "lon": 13.00, "olas": "med", "espana": false, "artes": ["cerco"] },
+    { "id": "it_almeja",    "nombre": "Italia · Adriático norte",   "que": "Almeja · Chioggia, Goro",          "lat": 45.00, "lon": 12.50, "olas": "med", "espana": false, "artes": ["marisqueo"] }
+  ],
+
+  "especies": [
+    { "id": "boqueron",    "nombre": "Boquerón",    "origen": [["huelva","cerco"],["cadiz","cerco"],["malaga","cerco"],["levante","cerco"],["barcelona","cerco"],["tarragona","cerco"],["it_adriatico","volante"],["it_sicilia","cerco"]] },
+    { "id": "sardina",     "nombre": "Sardina",     "origen": [["huelva","cerco"],["cadiz","cerco"],["malaga","cerco"],["levante","cerco"],["barcelona","cerco"],["tarragona","cerco"],["galicia","cerco"]] },
+    { "id": "bacaladilla", "nombre": "Bacaladilla", "origen": [["malaga","arrastre"],["levante","arrastre"],["barcelona","arrastre"],["tarragona","arrastre"],["galicia","arrastre"]] },
+    { "id": "pijota",      "nombre": "Pijota",      "origen": [["huelva","arrastre"],["cadiz","arrastre"],["malaga","arrastre"],["levante","arrastre"],["barcelona","arrastre"],["tarragona","arrastre"],["galicia","arrastre"]] },
+    { "id": "salmonete",   "nombre": "Salmonete",   "origen": [["huelva","arrastre"],["cadiz","arrastre"],["malaga","arrastre"],["levante","arrastre"],["barcelona","arrastre"],["tarragona","arrastre"]] },
+    { "id": "almeja",      "nombre": "Almeja",      "origen": [["galicia","marisqueo"],["it_almeja","marisqueo"]] }
+  ],
+
+  "vedas": {
+    "_ayuda": "Fechas 'AAAA-MM-DD' (una vez) o 'MM-DD' (se repite cada año). 'hasta': null = hasta nueva resolución. 'especie' (opcional): solo afecta a esa especie. 'validaHasta' (opcional): la norma deja de aplicarse después de esa fecha.",
+    "lista": [
+      { "zonas": ["huelva", "cadiz"], "arte": "cerco", "desde": "12-01", "hasta": "01-31",
+        "motivo": "veda anual del cerco del Golfo de Cádiz",
+        "fuente": "Orden AAA/1406/2016, citada en BOE-A-2026-2129" },
+      { "zonas": ["huelva", "cadiz"], "arte": "cerco", "especie": "sardina", "desde": "2026-11-03", "hasta": "2027-02-02",
+        "motivo": "parada de la sardina en el Golfo de Cádiz",
+        "fuente": "BOE-A-2026-6300 (cierre 2 nov 2026 y 3 meses de parada; reapertura según nueva resolución)" },
+      { "zonas": ["galicia"], "arte": "cerco", "especie": "sardina", "desde": "2026-08-01", "hasta": null,
+        "motivo": "sardina cerrada en Cantábrico y Noroeste por cuota agotada",
+        "fuente": "Nota de prensa MAPA 29-07-2026 (cierre 1 ago 2026). Reabre con la campaña 2027: fecha por confirmar" },
+      { "zonas": ["malaga"], "arte": "cerco", "desde": "03-15", "hasta": "05-15", "validaHasta": "2027-12-31",
+        "motivo": "veda del cerco en Málaga",
+        "fuente": "Orden APA/1178/2026 (BOE-A-2026-23366), anexo i)" },
+      { "zonas": ["levante"], "arte": "cerco", "desde": "12-01", "hasta": "01-10", "validaHasta": "2027-12-31",
+        "motivo": "veda del cerco en Valencia",
+        "fuente": "Orden APA/1178/2026 (BOE-A-2026-23366), anexo f)" },
+      { "zonas": ["levante"], "arte": "cerco", "desde": "05-01", "hasta": "05-31", "validaHasta": "2027-12-31",
+        "motivo": "veda del cerco en Valencia",
+        "fuente": "Orden APA/1178/2026 (BOE-A-2026-23366), anexo f)" },
+      { "zonas": ["barcelona"], "arte": "cerco", "desde": "11-09", "hasta": "01-08", "validaHasta": "2027-12-31",
+        "motivo": "veda del cerco en Barcelona",
+        "fuente": "Orden APA/1178/2026 (BOE-A-2026-23366), anexo b)" },
+      { "zonas": ["barcelona"], "arte": "cerco", "desde": "03-30", "hasta": "04-14", "validaHasta": "2027-12-31",
+        "motivo": "veda del cerco en Barcelona",
+        "fuente": "Orden APA/1178/2026 (BOE-A-2026-23366), anexo b)" },
+      { "zonas": ["tarragona"], "arte": "cerco", "desde": "12-21", "hasta": "02-21", "validaHasta": "2027-12-31",
+        "motivo": "veda del cerco en Tarragona",
+        "fuente": "Orden APA/1178/2026 (BOE-A-2026-23366), anexo d)" },
+      { "zonas": ["tarragona"], "arte": "cerco", "desde": "04-05", "hasta": "04-18", "validaHasta": "2027-12-31",
+        "motivo": "veda del cerco en Tarragona",
+        "fuente": "Orden APA/1178/2026 (BOE-A-2026-23366), anexo d)" }
+    ]
+  }
+}
