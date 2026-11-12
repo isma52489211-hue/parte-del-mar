@@ -1,5 +1,5 @@
 {
- "generado": "2026-11-12T13:28+00:00",
+ "generado": "2026-11-12T19:00+00:00",
  "fechas": [
   "2026-11-12",
   "2026-11-13",
@@ -10,166 +10,158 @@
   "huelva": [
    {
     "fecha": "2026-11-12",
-    "viento": 40.7,
-    "ola": null
+    "viento": null,
+    "ola": 3.11
    },
    {
     "fecha": "2026-11-13",
-    "viento": 32.0,
-    "ola": null
+    "viento": null,
+    "ola": 2.0
    },
    {
     "fecha": "2026-11-14",
-    "viento": 31.0,
-    "ola": null
+    "viento": null,
+    "ola": 1.26
    }
   ],
   "cadiz": [
    {
     "fecha": "2026-11-12",
-    "viento": 36.0,
-    "ola": null
+    "viento": 35.6,
+    "ola": 3.65
    },
    {
     "fecha": "2026-11-13",
     "viento": 31.7,
-    "ola": null
+    "ola": 2.42
    },
    {
     "fecha": "2026-11-14",
     "viento": 27.4,
-    "ola": null
+    "ola": 1.65
    }
   ],
   "malaga": [
    {
     "fecha": "2026-11-12",
-    "viento": 30.2,
-    "ola": null
+    "viento": 25.9,
+    "ola": 0.95
    },
    {
     "fecha": "2026-11-13",
     "viento": 21.6,
-    "ola": null
+    "ola": 0.77
    },
    {
     "fecha": "2026-11-14",
     "viento": 20.5,
-    "ola": null
+    "ola": 0.56
    }
   ],
   "levante": [
    {
     "fecha": "2026-11-12",
     "viento": 43.2,
-    "ola": null
+    "ola": 0.89
    },
    {
     "fecha": "2026-11-13",
     "viento": 41.0,
-    "ola": null
+    "ola": 0.78
    },
    {
     "fecha": "2026-11-14",
     "viento": 34.9,
-    "ola": null
+    "ola": 0.51
    }
   ],
   "cataluna": [
    {
     "fecha": "2026-11-12",
-    "viento": 49.3,
-    "ola": null
+    "viento": 45.4,
+    "ola": 2.25
    },
    {
     "fecha": "2026-11-13",
     "viento": 41.4,
-    "ola": null
+    "ola": 2.18
    },
    {
     "fecha": "2026-11-14",
     "viento": 28.1,
-    "ola": null
+    "ola": 1.0
    }
   ],
   "galicia": [
    {
     "fecha": "2026-11-12",
     "viento": 43.2,
-    "ola": null
+    "ola": 3.08
    },
    {
     "fecha": "2026-11-13",
     "viento": 45.7,
-    "ola": null
+    "ola": 3.13
    },
    {
     "fecha": "2026-11-14",
     "viento": 32.8,
-    "ola": null
+    "ola": 1.84
    }
   ],
   "it_adriatico": [
    {
     "fecha": "2026-11-12",
-    "viento": 46.8,
-    "ola": null
+    "viento": 36.7,
+    "ola": 2.38
    },
    {
     "fecha": "2026-11-13",
     "viento": 41.8,
-    "ola": null
+    "ola": 2.18
    },
    {
     "fecha": "2026-11-14",
     "viento": 27.7,
-    "ola": null
+    "ola": 2.15
    }
   ],
   "it_sicilia": [
    {
     "fecha": "2026-11-12",
-    "viento": 36.0,
-    "ola": null
+    "viento": 24.1,
+    "ola": 1.8
    },
    {
     "fecha": "2026-11-13",
     "viento": 29.9,
-    "ola": null
+    "ola": 2.41
    },
    {
     "fecha": "2026-11-14",
     "viento": 22.0,
-    "ola": null
+    "ola": 2.1
    }
   ],
   "it_almeja": [
    {
     "fecha": "2026-11-12",
-    "viento": 42.8,
-    "ola": null
+    "viento": 38.2,
+    "ola": 1.35
    },
    {
     "fecha": "2026-11-13",
     "viento": 60.1,
-    "ola": null
+    "ola": 2.34
    },
    {
     "fecha": "2026-11-14",
     "viento": 41.0,
-    "ola": null
+    "ola": 1.71
    }
   ]
  },
  "errores": [
-  "olas huelva: faltan las credenciales de Copernicus",
-  "olas cadiz: faltan las credenciales de Copernicus",
-  "olas malaga: faltan las credenciales de Copernicus",
-  "olas levante: faltan las credenciales de Copernicus",
-  "olas cataluna: faltan las credenciales de Copernicus",
-  "olas galicia: faltan las credenciales de Copernicus",
-  "olas it_adriatico: faltan las credenciales de Copernicus",
-  "olas it_sicilia: faltan las credenciales de Copernicus",
-  "olas it_almeja: faltan las credenciales de Copernicus"
+  "viento huelva: HTTP Error 503: Service Unavailable"
  ]
 }
