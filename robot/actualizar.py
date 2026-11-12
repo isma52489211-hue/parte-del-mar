@@ -16,6 +16,7 @@ import json
 import math
 import os
 import sys
+import time
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
@@ -128,10 +129,31 @@ def olas_copernicus(zona, fechas):
     return maximo_por_dia(pares, fechas)
 
 
+def con_reintentos(funcion, *argumentos, intentos=3, espera=20):
+    """Repite la llamada si falla (los servidores a veces dan errores momentáneos)."""
+    for intento in range(1, intentos + 1):
+        try:
+            return funcion(*argumentos)
+        except Exception:
+            if intento == intentos:
+                raise
+            time.sleep(espera)
+
+
+def datos_anteriores():
+    """Lee el datos.json anterior para reutilizar valores si una fuente falla."""
+    try:
+        with open(SALIDA, encoding="utf-8") as archivo:
+            return json.load(archivo).get("zonas", {})
+    except Exception:
+        return {}
+
+
 # ---------------------------------------------------------------------------
 
 def main():
     fechas = fechas_previstas()
+    anteriores = datos_anteriores()
     hay_credenciales = bool(os.environ.get("COPERNICUSMARINE_SERVICE_USERNAME"))
     resultado = {
         "generado": datetime.now(timezone.utc).isoformat(timespec="minutes"),
@@ -143,7 +165,7 @@ def main():
 
     for zona in ZONAS:
         try:
-            viento = viento_met(zona, fechas)
+            viento = con_reintentos(viento_met, zona, fechas)
         except Exception as e:
             viento = {}
             resultado["errores"].append(f"viento {zona['id']}: {e}")
@@ -151,17 +173,24 @@ def main():
         olas = {}
         if hay_credenciales:
             try:
-                olas = olas_copernicus(zona, fechas)
+                olas = con_reintentos(olas_copernicus, zona, fechas)
             except Exception as e:
                 resultado["errores"].append(f"olas {zona['id']}: {e}")
         else:
             resultado["errores"].append(f"olas {zona['id']}: faltan las credenciales de Copernicus")
 
+        # Si una fuente falló, reutilizamos el último valor bueno para esa fecha
+        previo = {d["fecha"]: d for d in anteriores.get(zona["id"], [])}
+        def valor(nuevos, clave, f, decimales):
+            if f in nuevos:
+                return round(nuevos[f], decimales)
+            return previo.get(f, {}).get(clave)
+
         resultado["zonas"][zona["id"]] = [
             {
                 "fecha": f,
-                "viento": round(viento[f], 1) if f in viento else None,
-                "ola": round(olas[f], 2) if f in olas else None,
+                "viento": valor(viento, "viento", f, 1),
+                "ola": valor(olas, "ola", f, 2),
             }
             for f in fechas
         ]

@@ -165,7 +165,7 @@
     <div id="zonas"></div>
 
     <p class="aviso">
-      Viento y rachas en km/h. Colores orientativos.
+      Viento en km/h. Colores orientativos.
       Tiempo: rojo con viento ≥ 50 km/h u ola ≥ 2,5 m; amarillo con viento ≥ 39 km/h u ola ≥ 1,25 m.
       Además: vedas conocidas del BOE (rojo), luna llena en cerco (amarillo, por confirmar) y fines de semana en España (amarillo, por confirmar).
       No sustituye al parte oficial ni a la decisión de Capitanía o la cofradía.
@@ -188,19 +188,20 @@
       marisqueo: { nombre: "Marisqueo", luna: false, finDeSemana: false }
     };
 
-    // ZONAS: un punto en el mar frente a sus puertos y las artes que nos interesan allí.
+    // ZONAS: las artes que nos interesan en cada zona.
+    //  Las coordenadas del punto de mar están en robot/actualizar.py (mismos "id").
     //  espana: true para aplicar la regla de fin de semana (solo España).
     const ZONAS = [
-      { id: "huelva",    nombre: "Huelva",   que: "Golfo de Cádiz · Huelva, Isla Cristina, Punta Umbría", lat: 37.05, lon: -6.95, espana: true,  artes: ["cerco", "arrastre"] },
-      { id: "cadiz",     nombre: "Cádiz",    que: "Golfo de Cádiz · Cádiz, Sanlúcar, Barbate",            lat: 36.50, lon: -6.40, espana: true,  artes: ["cerco", "arrastre"] },
-      { id: "malaga",    nombre: "Málaga",   que: "Alborán · Málaga, Caleta de Vélez, Fuengirola",        lat: 36.65, lon: -4.40, espana: true,  artes: ["cerco", "arrastre"] },
-      { id: "levante",   nombre: "Levante",  que: "Golfo de Valencia · Valencia, Castellón, Gandía",      lat: 39.35, lon: -0.15, espana: true,  artes: ["cerco", "arrastre"] },
-      { id: "cataluna",  nombre: "Cataluña", que: "Costa de Barcelona y Tarragona",                       lat: 41.25, lon:  2.25, espana: true,  artes: ["cerco", "arrastre"] },
-      { id: "galicia",   nombre: "Galicia",  que: "Rías Baixas · Vigo, Marín, Ribeira",                   lat: 42.20, lon: -9.00, espana: true,  artes: ["cerco", "arrastre", "marisqueo"],
+      { id: "huelva",    nombre: "Huelva",   que: "Golfo de Cádiz · Huelva, Isla Cristina, Punta Umbría", espana: true,  artes: ["cerco", "arrastre"] },
+      { id: "cadiz",     nombre: "Cádiz",    que: "Golfo de Cádiz · Cádiz, Sanlúcar, Barbate", espana: true,  artes: ["cerco", "arrastre"] },
+      { id: "malaga",    nombre: "Málaga",   que: "Alborán · Málaga, Caleta de Vélez, Fuengirola", espana: true,  artes: ["cerco", "arrastre"] },
+      { id: "levante",   nombre: "Levante",  que: "Golfo de Valencia · Valencia, Castellón, Gandía", espana: true,  artes: ["cerco", "arrastre"] },
+      { id: "cataluna",  nombre: "Cataluña", que: "Costa de Barcelona y Tarragona", espana: true,  artes: ["cerco", "arrastre"] },
+      { id: "galicia",   nombre: "Galicia",  que: "Rías Baixas · Vigo, Marín, Ribeira", espana: true,  artes: ["cerco", "arrastre", "marisqueo"],
         enlace: { texto: "Ver zonas de marisqueo abiertas o cerradas (INTECMAR)", url: "https://www.intecmar.gal/" } },
-      { id: "it_adriatico", nombre: "Italia · Adriático central", que: "Boquerón · Ancona, San Benedetto",   lat: 43.40, lon: 14.00, espana: false, artes: ["volante"] },
-      { id: "it_sicilia",   nombre: "Italia · Sicilia",           que: "Boquerón · Sciacca (lampara)",       lat: 37.40, lon: 13.00, espana: false, artes: ["cerco"] },
-      { id: "it_almeja",    nombre: "Italia · Adriático norte",   que: "Almeja · Chioggia, Goro",            lat: 45.00, lon: 12.50, espana: false, artes: ["marisqueo"] }
+      { id: "it_adriatico", nombre: "Italia · Adriático central", que: "Boquerón · Ancona, San Benedetto", espana: false, artes: ["volante"] },
+      { id: "it_sicilia",   nombre: "Italia · Sicilia",           que: "Boquerón · Sciacca (lampara)", espana: false, artes: ["cerco"] },
+      { id: "it_almeja",    nombre: "Italia · Adriático norte",   que: "Almeja · Chioggia, Goro", espana: false, artes: ["marisqueo"] }
     ];
 
     // ESPECIES: de qué arte y de qué zonas viene cada una (supuesto inicial, ajústalo).
@@ -377,36 +378,21 @@
     }
 
     // =====================================================================
-    // DATOS DE OPEN-METEO
+    // DATOS: los prepara el robot (robot/actualizar.py) en datos.json
+    // Viento: MET Norway (CC BY 4.0). Olas: Copernicus Marine Service.
     // =====================================================================
 
-    async function pedirJSON(url) {
-      const respuesta = await fetch(url);
+    async function cargarDatos() {
+      // "?t=" evita que el navegador muestre una copia antigua guardada
+      const respuesta = await fetch("datos.json?t=" + Date.now());
       if (!respuesta.ok) throw new Error("Respuesta del servidor: " + respuesta.status);
       return respuesta.json();
     }
 
-    async function cargarZona(zona) {
-      const urlTiempo = "https://api.open-meteo.com/v1/forecast"
-        + `?latitude=${zona.lat}&longitude=${zona.lon}`
-        + "&daily=wind_speed_10m_max,wind_gusts_10m_max"
-        + "&timezone=Europe/Madrid&forecast_days=3";
-
-      const urlMar = "https://marine-api.open-meteo.com/v1/marine"
-        + `?latitude=${zona.lat}&longitude=${zona.lon}`
-        + "&daily=wave_height_max"
-        + "&timezone=Europe/Madrid&forecast_days=3";
-
-      const [tiempo, mar] = await Promise.all([pedirJSON(urlTiempo), pedirJSON(urlMar)]);
-      const t = tiempo.daily;
-      const m = mar.daily;
-
-      return t.time.map((fecha, i) => ({
-        fecha,
-        viento: t.wind_speed_10m_max[i],
-        rachas: t.wind_gusts_10m_max[i],
-        ola: m.wave_height_max[i]
-      }));
+    // "Hoy", "Mañana", "Pasado" o "Ayer" según la fecha real
+    function etiquetaDia(fecha) {
+      const dias = Math.round((aFecha(fecha) - aFecha(hoyTexto())) / 86400000);
+      return { "-1": "Ayer", "0": "Hoy", "1": "Mañana", "2": "Pasado" }[dias] || "";
     }
 
     // =====================================================================
@@ -437,7 +423,7 @@
       // Guardamos lo que predice hoy para poder compararlo más adelante
       guardar("pdm-predicciones", prediccionesGuardadas);
 
-      const cabecera = fechas.map((f, i) => `<th>${["Hoy", "Mañana", "Pasado"][i]}<br>${corta(f)}</th>`).join("");
+      const cabecera = fechas.map((f, i) => `<th>${etiquetaDia(f)}<br>${corta(f)}</th>`).join("");
       document.getElementById("especies").innerHTML =
         `<table><tr><th></th>${cabecera}</tr>${filas}</table>`;
     }
@@ -462,7 +448,7 @@
           }).join("");
           return `<div class="dia">
                     <div class="fecha">${corta(dia.fecha)}</div>
-                    <div class="tiempo">Ola ${numero(dia.ola, 1)} m · Viento ${numero(dia.viento, 0)} · Rachas ${numero(dia.rachas, 0)}</div>
+                    <div class="tiempo">Ola ${numero(dia.ola, 1)} m · Viento ${numero(dia.viento, 0)}</div>
                     ${artes}${avisos}
                   </div>`;
         }).join("");
@@ -539,26 +525,34 @@
     async function cargarTodo() {
       mostrarMensaje("Cargando…", false);
 
-      // allSettled: si una zona falla, las demás se muestran igual
-      const resultados = await Promise.allSettled(ZONAS.map(cargarZona));
-      const fallos = resultados.filter(r => r.status === "rejected").length;
-
-      if (fallos === ZONAS.length) {
+      let datos;
+      try {
+        datos = await cargarDatos();
+      } catch (e) {
         mostrarMensaje("No se pudo cargar la previsión. Comprueba tu conexión a internet e inténtalo de nuevo.", true);
         return;
       }
 
+      // Mismo formato que espera pintarZonas: una entrada por zona, con o sin datos
+      const resultados = ZONAS.map(zona => datos.zonas[zona.id]
+        ? { status: "fulfilled", value: datos.zonas[zona.id] }
+        : { status: "rejected" });
       const datosPorZona = {};
       ZONAS.forEach((zona, z) => {
         if (resultados[z].status === "fulfilled") datosPorZona[zona.id] = resultados[z].value;
       });
-      const fechas = Object.values(datosPorZona)[0].map(d => d.fecha);
+      const fechas = datos.fechas;
 
       pintarEspecies(datosPorZona, fechas);
       pintarZonas(resultados);
       pintarAciertos();
 
-      mostrarMensaje(fallos ? `Faltan datos de ${fallos} zona(s).` : `Actualizado: ${larga(fechas[0])}.`, fallos > 0);
+      // Cuándo se descargaron los datos
+      const generado = new Date(datos.generado);
+      const horas = Math.round((Date.now() - generado) / 3600000);
+      const hora = generado.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+      const texto = `Datos de ${larga(aTexto(generado))}, ${hora} (hace ${horas} h). Viento: MET Norway · Olas: Copernicus Marine.`;
+      mostrarMensaje(horas > 12 ? texto + " ¡Datos antiguos: el robot puede estar fallando!" : texto, horas > 12);
     }
 
     document.getElementById("recargar").addEventListener("click", cargarTodo);
