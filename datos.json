@@ -1,5 +1,5 @@
 {
- "generado": "2026-11-13T06:56+00:00",
+ "generado": "2026-11-13T17:16+00:00",
  "fechas": [
   "2026-11-13",
   "2026-11-14",
@@ -10,35 +10,35 @@
   "huelva": [
    {
     "fecha": "2026-11-13",
-    "viento": 33.1,
-    "ola": 2.04
+    "viento": 32.4,
+    "ola": 2.05
    },
    {
     "fecha": "2026-11-14",
-    "viento": 33.1,
-    "ola": 1.28
+    "viento": 33.8,
+    "ola": 1.33
    },
    {
     "fecha": "2026-11-15",
-    "viento": 26.3,
-    "ola": 0.88
+    "viento": 20.5,
+    "ola": 0.87
    }
   ],
   "cadiz": [
    {
     "fecha": "2026-11-13",
-    "viento": 28.4,
-    "ola": 2.46
+    "viento": 27.7,
+    "ola": 2.48
    },
    {
     "fecha": "2026-11-14",
-    "viento": 27.0,
-    "ola": 1.66
+    "viento": 28.4,
+    "ola": 1.73
    },
    {
     "fecha": "2026-11-15",
-    "viento": 19.1,
-    "ola": 1.08
+    "viento": 20.5,
+    "ola": 1.16
    }
   ],
   "malaga": [
@@ -49,131 +49,131 @@
    },
    {
     "fecha": "2026-11-14",
-    "viento": 19.8,
+    "viento": 20.5,
     "ola": 0.6
    },
    {
     "fecha": "2026-11-15",
-    "viento": 21.2,
+    "viento": 25.9,
     "ola": 0.46
    }
   ],
   "levante": [
    {
     "fecha": "2026-11-13",
-    "viento": 37.1,
+    "viento": 28.1,
     "ola": 0.73
    },
    {
     "fecha": "2026-11-14",
-    "viento": 36.4,
+    "viento": 36.0,
     "ola": 0.44
    },
    {
     "fecha": "2026-11-15",
-    "viento": 41.0,
+    "viento": 36.7,
     "ola": 0.53
    }
   ],
   "barcelona": [
    {
     "fecha": "2026-11-13",
-    "viento": 24.5,
+    "viento": 18.7,
     "ola": 2.03
    },
    {
     "fecha": "2026-11-14",
-    "viento": 26.6,
+    "viento": 29.5,
     "ola": 1.01
    },
    {
     "fecha": "2026-11-15",
-    "viento": 36.7,
+    "viento": 31.0,
     "ola": 1.3
    }
   ],
   "tarragona": [
    {
     "fecha": "2026-11-13",
-    "viento": 42.1,
+    "viento": 20.9,
     "ola": 1.75
    },
    {
     "fecha": "2026-11-14",
-    "viento": 18.7,
+    "viento": 15.5,
     "ola": 0.85
    },
    {
     "fecha": "2026-11-15",
-    "viento": 22.3,
+    "viento": 31.7,
     "ola": 1.13
    }
   ],
   "galicia": [
    {
     "fecha": "2026-11-13",
-    "viento": 26.3,
-    "ola": 3.04
+    "viento": 21.6,
+    "ola": 3.14
    },
    {
     "fecha": "2026-11-14",
-    "viento": 29.9,
-    "ola": 1.79
+    "viento": 33.5,
+    "ola": 1.85
    },
    {
     "fecha": "2026-11-15",
-    "viento": 54.4,
-    "ola": 3.18
+    "viento": 51.8,
+    "ola": 2.68
    }
   ],
   "it_adriatico": [
    {
     "fecha": "2026-11-13",
-    "viento": 43.6,
+    "viento": 40.7,
     "ola": 1.9
    },
    {
     "fecha": "2026-11-14",
-    "viento": 25.9,
+    "viento": 32.4,
     "ola": 1.83
    },
    {
     "fecha": "2026-11-15",
-    "viento": 25.9,
+    "viento": 28.1,
     "ola": 0.75
    }
   ],
   "it_sicilia": [
    {
     "fecha": "2026-11-13",
-    "viento": 29.2,
+    "viento": 33.1,
     "ola": 2.42
    },
    {
     "fecha": "2026-11-14",
-    "viento": 20.9,
+    "viento": 24.1,
     "ola": 2.07
    },
    {
     "fecha": "2026-11-15",
-    "viento": 22.0,
+    "viento": 23.4,
     "ola": 0.83
    }
   ],
   "it_almeja": [
    {
     "fecha": "2026-11-13",
-    "viento": 57.6,
+    "viento": 48.6,
     "ola": 2.11
    },
    {
     "fecha": "2026-11-14",
-    "viento": 40.0,
+    "viento": 41.0,
     "ola": 1.63
    },
    {
     "fecha": "2026-11-15",
-    "viento": 19.8,
+    "viento": 20.2,
     "ola": 0.36
    }
   ]
