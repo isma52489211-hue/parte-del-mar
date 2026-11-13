@@ -32,6 +32,7 @@ USER_AGENT = "parte-del-mar github.com/isma52489211-hue/parte-del-mar"
 MODELOS_OLAS = {
     "ibi": "cmems_mod_ibi_wav_anfc_0.027deg_PT1H-i",   # Atlántico ibérico (unos 3 km)
     "med": "cmems_mod_med_wav_anfc_4.2km_PT1H-i",      # Mediterráneo (4,2 km)
+    "glo": "cmems_mod_glo_wav_anfc_0.083deg_PT3H-i",   # Global, para zonas fuera de los otros dos (unos 9 km)
 }
 
 # Las zonas (un punto en el mar frente a sus puertos) están en config.json,

@@ -1,5 +1,5 @@
 {
-  "_ayuda": "Configuración única de Parte del Mar. La usan la app (index.html), el robot (robot/actualizar.py) y el aviso de Telegram (robot/aviso.js). Para añadir una zona: añade una entrada en 'zonas' con un punto en el MAR (lat/lon) y su modelo de olas ('ibi' = Atlántico ibérico, 'med' = Mediterráneo), y después ponla en el 'origen' de las especies que vengan de ella.",
+  "_ayuda": "Configuración única de Parte del Mar. La usan la app (index.html), el robot (robot/actualizar.py) y el aviso de Telegram (robot/aviso.js). Para añadir una zona: añade una entrada en 'zonas' con un punto en el MAR (lat/lon) y su modelo de olas ('ibi' = Atlántico ibérico, 'med' = Mediterráneo), y después ponla en el 'origen' de las especies que vengan de ella. Cada origen es [zona, arte, peso]: el peso (opcional, 1 por defecto) indica cuánto te abastece esa zona; ola 'glo' = modelo global para zonas fuera de Europa.",
 
   "limites": {
     "_fuente": "Viento: escala Beaufort (fuerza 6 = 39 km/h; fuerza 7 = 50 km/h, umbral de aviso costero de AEMET). Ola: escala Douglas (1,25 m marejada fuerte; 2,5 m mar gruesa).",
@@ -38,7 +38,8 @@
     {"id": "it_adriatico", "nombre": "Italia · Adriático central", "que": "Boquerón y almeja · Ancona, San Benedetto", "lat": 43.4, "lon": 14.0, "olas": "med", "espana": false, "artes": ["volante", "marisqueo"]},
     {"id": "it_adriatico_sur", "nombre": "Italia · Adriático sur", "que": "Boquerón · Puglia (Bari, Manfredonia)", "lat": 41.3, "lon": 16.9, "olas": "med", "espana": false, "artes": ["volante"]},
     {"id": "it_tirreno", "nombre": "Italia · Tirreno", "que": "Boquerón · Campania (Nápoles, Salerno)", "lat": 40.5, "lon": 14.0, "olas": "med", "espana": false, "artes": ["cerco"]},
-    {"id": "it_sicilia", "nombre": "Italia · Sicilia", "que": "Boquerón · Sciacca (lampara)", "lat": 37.4, "lon": 13.0, "olas": "med", "espana": false, "artes": ["cerco"]}
+    {"id": "it_sicilia", "nombre": "Italia · Sicilia", "que": "Boquerón · Sciacca (lampara)", "lat": 37.4, "lon": 13.0, "olas": "med", "espana": false, "artes": ["cerco"]},
+    {"id": "mauritania", "nombre": "Mauritania", "que": "Pescada · Nouadhibou", "lat": 20.50, "lon": -17.80, "olas": "glo", "espana": false, "artes": ["arrastre"]}
   ],
 
   "especies": [
@@ -47,7 +48,8 @@
     {"id": "bacaladilla", "nombre": "Bacaladilla", "origen": [["malaga", "arrastre"], ["almeria", "arrastre"], ["alicante", "arrastre"], ["levante", "arrastre"], ["castellon", "arrastre"], ["tarragona", "arrastre"], ["barcelona", "arrastre"], ["galicia", "arrastre"], ["cantabrico", "arrastre"]]},
     {"id": "pijota", "nombre": "Pijota", "origen": [["huelva", "arrastre"], ["cadiz", "arrastre"], ["malaga", "arrastre"], ["almeria", "arrastre"], ["alicante", "arrastre"], ["levante", "arrastre"], ["castellon", "arrastre"], ["tarragona", "arrastre"], ["barcelona", "arrastre"], ["galicia", "arrastre"], ["cantabrico", "arrastre"], ["pt_norte", "arrastre"], ["pt_sur", "arrastre"]]},
     {"id": "salmonete", "nombre": "Salmonete", "origen": [["huelva", "arrastre"], ["cadiz", "arrastre"], ["malaga", "arrastre"], ["almeria", "arrastre"], ["alicante", "arrastre"], ["levante", "arrastre"], ["castellon", "arrastre"], ["tarragona", "arrastre"], ["barcelona", "arrastre"]]},
-    {"id": "almeja", "nombre": "Almeja", "origen": [["galicia", "marisqueo"], ["it_almeja", "marisqueo"], ["it_adriatico", "marisqueo"]]}
+    {"id": "almeja", "nombre": "Almeja", "origen": [["galicia", "marisqueo"], ["it_almeja", "marisqueo"], ["it_adriatico", "marisqueo"]]},
+    {"id": "pescada", "nombre": "Pescada", "origen": [["mauritania", "arrastre", 3]]}
   ],
 
   "vedas": {

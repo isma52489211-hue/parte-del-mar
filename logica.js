@@ -133,19 +133,22 @@ function crearLogica(config) {
     return { color, texto, motivos };
   }
 
-  // Oferta prevista de una especie en una fecha: media de sus zonas
-  // (verde = 1, amarillo = 0,5, rojo = 0). datosPorZona = { zonaId: [días] }
+  // Oferta prevista de una especie en una fecha: media PONDERADA de sus zonas
+  // (verde = 1, amarillo = 0,5, rojo = 0). Cada origen es [zona, arte, peso];
+  // el peso es opcional (1 si no se pone): las zonas que más te abastecen pesan más.
+  // datosPorZona = { zonaId: [días] }
   function ofertaEspecie(especie, datosPorZona, fecha) {
-    const puntos = [];
-    especie.origen.forEach(([zonaId, arte]) => {
+    let suma = 0, pesos = 0;
+    especie.origen.forEach(([zonaId, arte, peso = 1]) => {
       const dia = (datosPorZona[zonaId] || []).find(d => d.fecha === fecha);
       if (!dia) return;                        // zona sin datos: no cuenta
       const zona = ZONAS.find(z => z.id === zonaId);
       const c = colorArte(zona, arte, dia, especie.id).color;
-      puntos.push({ verde: 1, amarillo: 0.5, rojo: 0 }[c]);
+      suma += { verde: 1, amarillo: 0.5, rojo: 0 }[c] * peso;
+      pesos += peso;
     });
-    if (!puntos.length) return null;
-    const media = puntos.reduce((a, b) => a + b, 0) / puntos.length;
+    if (!pesos) return null;
+    const media = suma / pesos;
     if (media >= 0.67) return { nivel: "bien", texto: "Hay",       color: "verde" };
     if (media >= 0.34) return { nivel: "poco", texto: "Poco",      color: "amarillo" };
     return                   { nivel: "nada", texto: "Casi nada", color: "rojo" };
