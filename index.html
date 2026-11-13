@@ -220,12 +220,65 @@
 
     .aviso { margin: 20px 0 0; font-size: 0.78rem; color: var(--suave); }
 
+    /* ---------- Pesos ---------- */
+    .chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 10px; }
+    .chips button {
+      flex: none;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--gris-fondo);
+      font-size: 0.9rem;
+    }
+    .chips button.elegido { background: var(--mar); color: var(--sobre-mar); font-weight: 700; }
+    .chips button .hecho { margin-left: 4px; }
+
+    .fila-peso { display: flex; align-items: center; border-bottom: 1px solid var(--linea); }
+    .fila-peso:last-child { border-bottom: 0; }
+    .fila-peso .marcar {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      text-align: left;
+    }
+    .puesto {
+      flex: none;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--gris-fondo);
+      color: var(--suave);
+      font-weight: 700;
+    }
+    .fila-peso.ordenada .puesto { background: var(--mar); color: var(--sobre-mar); }
+    .fila-peso.excluida .nombre { text-decoration: line-through; color: var(--suave); }
+    .fila-peso small { display: block; color: var(--suave); font-size: 0.8rem; }
+    .fila-peso .quitar {
+      padding: 12px 16px;
+      color: var(--suave);
+      font-size: 1.1rem;
+    }
+    .fila-peso.excluida .quitar { color: var(--rojo); font-weight: 700; }
+
+    .botones-pesos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .botones-pesos button {
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--gris-fondo);
+      font-size: 0.9rem;
+    }
+    .botones-pesos button.principal { background: var(--mar); color: var(--sobre-mar); font-weight: 700; }
+    #nota-pesos { margin: 10px 0 0; font-size: 0.85rem; color: var(--suave); }
+    #texto-copia { width: 100%; height: 160px; margin-top: 10px; font: 0.85rem monospace; }
+    #texto-copia[hidden] { display: none; }
+
     /* ---------- Barra de pestañas ---------- */
     nav {
       position: fixed;
       left: 0; right: 0; bottom: 0;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       background: var(--tarjeta);
       border-top: 1px solid var(--linea);
       padding-bottom: env(safe-area-inset-bottom);
@@ -274,6 +327,22 @@
       <button id="exportar">⬇ Descargar copia del registro</button>
     </section>
 
+    <!-- PESTAÑA 4: PESOS -->
+    <section class="pantalla" id="pantalla-pesos" hidden>
+      <h2>¿De dónde te llega más?</h2>
+      <p class="ayuda">Elige una especie y toca sus zonas <strong>en orden</strong>: la primera es la que más te manda al Merca.
+        Las que no toques cuentan poco. Con ✕ marcas las que no te llegan nunca. Tocar otra vez una zona la desmarca.</p>
+      <div class="chips" id="chips-especies"></div>
+      <div class="caja" id="lista-pesos"></div>
+      <div class="botones-pesos">
+        <button class="principal" id="copiar-pesos">📋 Copiar para Claude</button>
+        <button id="borrar-pesos">Borrar esta especie</button>
+      </div>
+      <p id="nota-pesos">Se guarda en este móvil y la app lo usa al momento. Para que el aviso de Telegram lo use también,
+        pulsa "Copiar para Claude" y pégamelo en el chat.</p>
+      <textarea id="texto-copia" hidden readonly></textarea>
+    </section>
+
     <p class="aviso">
       Orientativo. Tiempo: rojo con viento ≥ 50 km/h u ola ≥ 2,5 m; amarillo con viento ≥ 39 km/h u ola ≥ 1,25 m.
       Además: vedas del BOE (rojo), luna llena en cerco y fines de semana en España (amarillo, por confirmar).
@@ -286,6 +355,7 @@
     <button data-pantalla="compra"><span>🛒</span>Compra</button>
     <button data-pantalla="zonas"><span>🌊</span>Zonas</button>
     <button data-pantalla="registro"><span>📝</span>Registro</button>
+    <button data-pantalla="pesos"><span>⚖️</span>Pesos</button>
   </nav>
 
   <script src="logica.js"></script>
@@ -555,6 +625,139 @@
       a.click();
     });
 
+    // ---------- Pestaña PESOS ----------
+    // Orden marcado por el usuario: { especieId: { orden: [zonaId...], fuera: [zonaId...] } }
+    // Peso según el puesto: 1º = 5, 2º = 3, 3º = 2, 4º en adelante = 1,
+    // sin marcar = 0,5 (cuenta poco), ✕ = 0 (no llega, no cuenta).
+    const PESO_PUESTO = [5, 3, 2];
+    const PESO_SIN_MARCAR = 0.5;
+    let configOriginal = null;    // config.json tal cual, sin los pesos del móvil
+    let especiePesos = null;      // especie elegida en la pestaña Pesos
+
+    function pesoDe(marcas, zonaId) {
+      if (marcas.fuera.includes(zonaId)) return 0;
+      const i = marcas.orden.indexOf(zonaId);
+      if (i === -1) return PESO_SIN_MARCAR;
+      return PESO_PUESTO[i] || 1;
+    }
+
+    // Devuelve una copia de la configuración con los pesos marcados en este móvil
+    function aplicarPesos(config) {
+      const copia = JSON.parse(JSON.stringify(config));
+      const marcas = leer("pdm-orden");
+      copia.especies.forEach(e => {
+        const m = marcas[e.id];
+        if (!m || (!m.orden.length && !m.fuera.length)) return;   // sin marcar: pesos de config.json
+        e.origen = e.origen.map(([zona, arte]) => [zona, arte, pesoDe(m, zona)]);
+      });
+      return copia;
+    }
+
+    function marcasDe(especieId) {
+      const m = leer("pdm-orden")[especieId] || {};
+      return { orden: m.orden || [], fuera: m.fuera || [] };
+    }
+
+    function guardarMarcas(especieId, m) {
+      const todas = leer("pdm-orden");
+      todas[especieId] = m;
+      guardar("pdm-orden", todas);
+      // Recalcular toda la app con los pesos nuevos
+      L = crearLogica(aplicarPesos(configOriginal));
+      guardarPredicciones();
+      pintarCompra();
+      pintarPesos();
+    }
+
+    function nombreZona(id) { return L.ZONAS.find(z => z.id === id).nombre; }
+
+    function pintarPesos() {
+      const especies = configOriginal.especies;
+      if (!especies.some(e => e.id === especiePesos)) especiePesos = especies[0].id;
+
+      document.getElementById("chips-especies").innerHTML = especies.map(e => {
+        const m = marcasDe(e.id);
+        const hecho = m.orden.length || m.fuera.length ? `<span class="hecho">✓</span>` : "";
+        return `<button data-especie="${e.id}" class="${e.id === especiePesos ? "elegido" : ""}">${e.nombre}${hecho}</button>`;
+      }).join("");
+
+      const especie = especies.find(e => e.id === especiePesos);
+      const m = marcasDe(especie.id);
+      // Primero las ordenadas (en su orden), luego las demás, y al final las excluidas
+      const ids = especie.origen.map(o => o[0]);
+      const resto = ids.filter(id => !m.orden.includes(id) && !m.fuera.includes(id));
+      const lista = [...m.orden.filter(id => ids.includes(id)), ...resto, ...m.fuera.filter(id => ids.includes(id))];
+
+      document.getElementById("lista-pesos").innerHTML = lista.map(id => {
+        const zona = L.ZONAS.find(z => z.id === id);
+        const arte = especie.origen.find(o => o[0] === id)[1];
+        const puesto = m.orden.indexOf(id);
+        const fuera = m.fuera.includes(id);
+        const clase = fuera ? "excluida" : puesto >= 0 ? "ordenada" : "";
+        const etiqueta = fuera ? "✕" : puesto >= 0 ? `${puesto + 1}º` : "·";
+        return `
+          <div class="fila-peso ${clase}">
+            <button class="marcar" data-zona="${id}">
+              <span class="puesto">${etiqueta}</span>
+              <span><span class="nombre">${zona.nombre}</span><small>${zona.que} · ${L.ARTES[arte].nombre.toLowerCase()}</small></span>
+            </button>
+            <button class="quitar" data-quitar="${id}" aria-label="No llega de ${zona.nombre}">✕</button>
+          </div>`;
+      }).join("");
+    }
+
+    document.getElementById("chips-especies").addEventListener("click", ev => {
+      const b = ev.target.closest("button");
+      if (!b) return;
+      especiePesos = b.dataset.especie;
+      document.getElementById("texto-copia").hidden = true;
+      pintarPesos();
+    });
+
+    document.getElementById("lista-pesos").addEventListener("click", ev => {
+      const m = marcasDe(especiePesos);
+      const marcar = ev.target.closest("button.marcar");
+      const quitar = ev.target.closest("button.quitar");
+      if (marcar) {
+        const id = marcar.dataset.zona;
+        m.fuera = m.fuera.filter(z => z !== id);
+        m.orden = m.orden.includes(id) ? m.orden.filter(z => z !== id) : [...m.orden, id];
+      } else if (quitar) {
+        const id = quitar.dataset.quitar;
+        m.orden = m.orden.filter(z => z !== id);
+        m.fuera = m.fuera.includes(id) ? m.fuera.filter(z => z !== id) : [...m.fuera, id];
+      } else return;
+      guardarMarcas(especiePesos, m);
+    });
+
+    document.getElementById("borrar-pesos").addEventListener("click", () => {
+      guardarMarcas(especiePesos, { orden: [], fuera: [] });
+    });
+
+    // Texto para pegar en el chat con Claude, que lo pasará a config.json
+    document.getElementById("copiar-pesos").addEventListener("click", async () => {
+      const lineas = ["Pesos Parte del Mar:"];
+      configOriginal.especies.forEach(e => {
+        const m = marcasDe(e.id);
+        if (!m.orden.length && !m.fuera.length) return;
+        let linea = `${e.nombre}: ` + (m.orden.map((id, i) => `${i + 1}º ${nombreZona(id)}`).join(", ") || "sin orden");
+        if (m.fuera.length) linea += ` · no llega: ${m.fuera.map(nombreZona).join(", ")}`;
+        lineas.push(linea);
+      });
+      if (lineas.length === 1) { document.getElementById("nota-pesos").textContent = "Todavía no has marcado ninguna especie."; return; }
+      const texto = lineas.join("\n");
+      const caja = document.getElementById("texto-copia");
+      try {
+        await navigator.clipboard.writeText(texto);
+        document.getElementById("nota-pesos").textContent = "✅ Copiado. Ahora pégalo en el chat con Claude.";
+        caja.hidden = true;
+      } catch (e) {
+        // Si el móvil no deja copiar solo, se muestra el texto para copiarlo a mano
+        caja.value = texto; caja.hidden = false; caja.select();
+        document.getElementById("nota-pesos").textContent = "Mantén pulsado el texto, elige Copiar y pégalo en el chat con Claude.";
+      }
+    });
+
     // ---------- Carga principal ----------
     async function cargarTodo() {
       mostrarMensaje("Cargando…", false);
@@ -567,11 +770,13 @@
         return;
       }
 
-      L = crearLogica(config);
+      configOriginal = config;
+      L = crearLogica(aplicarPesos(config));
       guardarPredicciones();
       pintarCompra();
       pintarZonas();
       pintarRegistro();
+      pintarPesos();
 
       // Cuándo se descargaron los datos
       const generado = new Date(datos.generado);
