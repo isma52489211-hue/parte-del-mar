@@ -5,6 +5,7 @@ name: Actualizar datos
 on:
   schedule:
     - cron: "17 */3 * * *"   # minuto 17 de cada 3 horas (hora UTC)
+    - cron: "17 17 * * *"    # extra: datos frescos para el aviso de las 19:46 en horario de verano
   workflow_dispatch:          # botón "Run workflow" para lanzarlo a mano
 
 permissions:

@@ -1,12 +1,17 @@
-# Aviso diario por Telegram con la previsión de pesca de mañana.
-# Se ejecuta cada día a las 18:41 UTC (19:41 en invierno y 20:41 en verano, hora de España),
-# después de la actualización de datos de las 18:17 UTC.
-# También se puede lanzar a mano desde la pestaña "Actions" de GitHub.
+# Avisos por Telegram con la previsión de pesca, dos veces al día en hora española:
+#   11:31 -> antes de empezar a comprar por WhatsApp (desde las 12:30)
+#   19:46 -> previsión actualizada antes del cierre de WhatsApp (21:00) y del Merca (4:30)
+# GitHub programa en hora UTC: cada aviso tiene una línea para invierno y otra para verano,
+# y robot/aviso.js solo envía la que corresponde ese día. GitHub puede retrasar unos minutos.
+# También se puede lanzar a mano desde la pestaña "Actions" (envía un aviso de prueba).
 name: Aviso diario Telegram
 
 on:
   schedule:
-    - cron: "41 18 * * *"
+    - cron: "31 10 * * *"   # mediodía, invierno
+    - cron: "31 9 * * *"    # mediodía, verano
+    - cron: "46 18 * * *"   # tarde, invierno
+    - cron: "46 17 * * *"   # tarde, verano
   workflow_dispatch:
 
 permissions:
@@ -27,4 +32,5 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PROGRAMACION: ${{ github.event.schedule }}
         run: node robot/aviso.js

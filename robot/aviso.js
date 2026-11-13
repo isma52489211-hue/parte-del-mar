@@ -34,23 +34,54 @@ function lineaEspecies(fecha) {
   });
 }
 
-function componerMensaje() {
+// Horarios de los avisos. GitHub programa en hora UTC, así que cada aviso
+// tiene dos programaciones (invierno y verano) y solo se envía la que coincide
+// con la hora española de ese día. Deben coincidir con .github/workflows/aviso.yml
+const FRANJAS = {
+  "31 10 * * *": { nombre: "mediodía", desfaseMadrid: 60 },    // 11:31 en invierno
+  "31 9 * * *":  { nombre: "mediodía", desfaseMadrid: 120 },   // 11:31 en verano
+  "46 18 * * *": { nombre: "tarde",    desfaseMadrid: 60 },    // 19:46 en invierno
+  "46 17 * * *": { nombre: "tarde",    desfaseMadrid: 120 },   // 19:46 en verano
+};
+
+// Minutos de diferencia entre la hora de España y la UTC (60 en invierno, 120 en verano)
+function desfaseMadrid() {
+  const ahora = new Date();
+  const madrid = new Date(ahora.toLocaleString("en-US", { timeZone: "Europe/Madrid" }));
+  const utc = new Date(ahora.toLocaleString("en-US", { timeZone: "UTC" }));
+  return Math.round((madrid - utc) / 60000);
+}
+
+// Especies que casi no llegarán un día (para el consejo de comprar de más)
+function escasas(fecha) {
+  return L.ESPECIES.filter(e => {
+    const o = L.ofertaEspecie(e, datos.zonas, fecha);
+    return o && o.nivel === "nada";
+  }).map(e => e.nombre.toLowerCase());
+}
+
+function componerMensaje(franja) {
   const hoy = hoyEnEspana();
   const manana = L.sumarDias(hoy, 1);
   const pasado = L.sumarDias(hoy, 2);
-  const lineas = [`<b>🌊 Parte del Mar · ${L.larga(hoy)}</b>`, ""];
+  const lineas = [`<b>🌊 Parte del Mar · ${L.larga(hoy)} · aviso de ${franja}</b>`, ""];
 
-  if (datos.fechas.includes(manana)) {
-    lineas.push(`<b>Pesca de mañana, ${L.larga(manana)}</b>`);
-    lineas.push("<i>(suele llegar a Mercacórdoba al día siguiente)</i>");
-    lineas.push(...lineaEspecies(manana), "");
+  // Lo que se pesca hoy llega mañana al Merca: es lo que estás comprando ahora
+  if (datos.fechas.includes(hoy)) {
+    lineas.push(`<b>🛒 Lo que compras ahora</b> (llega ${L.larga(manana)}, pescado hoy)`);
+    lineas.push(...lineaEspecies(hoy), "");
   }
-  if (datos.fechas.includes(pasado)) {
+
+  // Lo que se pesque mañana llega pasado mañana: si va a faltar, compra de más hoy
+  if (datos.fechas.includes(manana)) {
     const resumen = L.ESPECIES.map(e => {
-      const o = L.ofertaEspecie(e, datos.zonas, pasado);
+      const o = L.ofertaEspecie(e, datos.zonas, manana);
       return o ? `${ICONO[o.color]} ${e.nombre}` : `⚪ ${e.nombre}`;
     });
-    lineas.push(`<b>Pasado mañana, ${L.larga(pasado)}</b>`, resumen.join(" · "), "");
+    lineas.push(`<b>📦 Para hacer acopio</b> (llega ${L.larga(pasado)}, pescado mañana)`, resumen.join(" · "));
+    const pocas = escasas(manana);
+    if (pocas.length) lineas.push(`👉 Faltará <b>${pocas.join(", ")}</b>: valora comprar de más hoy.`);
+    lineas.push("");
   }
 
   // Vedas que empiezan o terminan en la próxima semana
@@ -86,7 +117,19 @@ async function telegram(metodo, cuerpo) {
 }
 
 async function main() {
-  const mensaje = componerMensaje();
+  // ¿Qué programación ha lanzado esto? (vacío = lanzado a mano)
+  const cron = (process.env.PROGRAMACION || "").trim();
+  let franja = "prueba";
+  if (cron) {
+    const f = FRANJAS[cron];
+    if (!f) { console.log(`Programación desconocida: "${cron}"`); process.exit(1); }
+    if (f.desfaseMadrid !== desfaseMadrid()) {
+      console.log(`No toca: esta programación es para el horario de ${f.desfaseMadrid === 60 ? "invierno" : "verano"}.`);
+      return;
+    }
+    franja = f.nombre;
+  }
+  const mensaje = componerMensaje(franja);
 
   if (process.argv.includes("--prueba")) {
     console.log(mensaje);
