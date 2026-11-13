@@ -2,22 +2,43 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Parte del Mar</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icono.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icono-192.png">
+  <meta name="theme-color" content="#0b5c8a">
 
   <style>
-    /* ---------- Colores y tipografía generales ---------- */
+    /* ---------- Colores (claro y oscuro automático) ---------- */
     :root {
       --fondo: #eef4f8;
       --tarjeta: #ffffff;
       --texto: #1b2a38;
       --suave: #5b6b7a;
+      --linea: #dfe8ef;
       --mar: #0b5c8a;
-      --error-fondo: #fdecec;
-      --error-texto: #a12626;
-      --verde: #2e9e4a;
-      --amarillo: #e0a800;
-      --rojo: #d23c3c;
+      --sobre-mar: #ffffff;
+      --verde: #2e9e4a;    --verde-fondo: #e3f4e6;    --verde-texto: #1d5e2b;
+      --amarillo: #e0a800; --amarillo-fondo: #fdf3d3; --amarillo-texto: #6b4e00;
+      --rojo: #d23c3c;     --rojo-fondo: #fbe1e1;     --rojo-texto: #8a1f1f;
+      --gris-fondo: #e6eef4;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fondo: #0e1720;
+        --tarjeta: #18242f;
+        --texto: #e6edf3;
+        --suave: #9aabba;
+        --linea: #263645;
+        --mar: #4fb0e3;
+        --sobre-mar: #06202f;
+        --verde-fondo: #12351d;    --verde-texto: #8fdba2;
+        --amarillo-fondo: #3a2f08; --amarillo-texto: #f2cf5b;
+        --rojo-fondo: #421a1a;     --rojo-texto: #f5a3a3;
+        --gris-fondo: #223140;
+      }
     }
 
     * { box-sizing: border-box; }
@@ -30,147 +51,242 @@
       line-height: 1.4;
     }
 
+    button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+
     main {
-      max-width: 720px;
+      max-width: 640px;
       margin: 0 auto;
-      padding: 24px 16px 40px;
+      padding: 16px 16px 96px;   /* hueco abajo para la barra de pestañas */
     }
 
-    h1 { margin: 0 0 4px; font-size: 1.8rem; color: var(--mar); }
-    h2 { margin: 28px 0 4px; font-size: 1.2rem; color: var(--mar); }
+    /* ---------- Cabecera ---------- */
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    h1 { margin: 0; font-size: 1.5rem; color: var(--mar); }
 
-    .subtitulo, .ayuda { margin: 0 0 12px; color: var(--suave); }
-    .ayuda { font-size: 0.85rem; }
-
-    button {
-      font-size: 0.95rem;
-      padding: 10px 14px;
-      border: 0;
+    #recargar {
+      padding: 8px 12px;
       border-radius: 10px;
-      background: var(--mar);
-      color: #fff;
+      background: var(--gris-fondo);
+      font-size: 0.9rem;
     }
+
+    #estado { margin: 4px 0 14px; font-size: 0.8rem; color: var(--suave); min-height: 1.2em; }
+    #estado.error {
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--rojo-fondo);
+      color: var(--rojo-texto);
+      font-size: 0.9rem;
+    }
+
+    h2 { margin: 0 0 4px; font-size: 1.15rem; }
+    .ayuda { margin: 0 0 12px; font-size: 0.85rem; color: var(--suave); }
 
     .caja {
       background: var(--tarjeta);
-      border-radius: 12px;
-      padding: 14px;
+      border-radius: 14px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
     }
 
-    /* ---------- Mensajes (cargando / error) ---------- */
-    #estado { margin: 16px 0 0; min-height: 1.4em; color: var(--suave); }
-
-    .error {
-      padding: 12px;
-      border-radius: 10px;
-      background: var(--error-fondo);
-      color: var(--error-texto);
-    }
+    .pantalla[hidden] { display: none; }
 
     /* ---------- Colores del semáforo ---------- */
-    .verde    { background: #e3f4e6; color: #1d5e2b; border-color: var(--verde); }
-    .amarillo { background: #fdf3d3; color: #6b4e00; border-color: var(--amarillo); }
-    .rojo     { background: #fbe1e1; color: #8a1f1f; border-color: var(--rojo); }
+    .punto {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      flex: none;
+    }
+    .punto.verde { background: var(--verde); }
+    .punto.amarillo { background: var(--amarillo); }
+    .punto.rojo { background: var(--rojo); }
+    .punto.gris { background: var(--suave); opacity: 0.4; }
 
-    /* ---------- Tabla de especies ---------- */
-    table { width: 100%; border-collapse: separate; border-spacing: 4px; }
-    th { font-size: 0.8rem; color: var(--suave); text-align: left; font-weight: 600; }
-    td.especie { font-weight: 600; white-space: nowrap; }
-
-    .chip {
-      display: block;
-      text-align: center;
-      padding: 6px 4px;
-      border-radius: 8px;
+    .etiqueta {
+      padding: 3px 10px;
+      border-radius: 999px;
       font-size: 0.85rem;
       font-weight: 700;
-      border-left: 5px solid;
+      white-space: nowrap;
     }
+    .etiqueta.verde    { background: var(--verde-fondo);    color: var(--verde-texto); }
+    .etiqueta.amarillo { background: var(--amarillo-fondo); color: var(--amarillo-texto); }
+    .etiqueta.rojo     { background: var(--rojo-fondo);     color: var(--rojo-texto); }
 
-    /* ---------- Registro ---------- */
-    .fila-registro {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
+    /* ---------- Selector de día ---------- */
+    .dias-selector {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
       gap: 6px;
-      padding: 8px 0;
-      border-bottom: 1px solid #e3ebf1;
+      margin-bottom: 12px;
     }
-    .fila-registro:last-child { border-bottom: 0; }
-    .fila-registro .nombre { flex: 1 1 100px; font-weight: 600; }
-
-    .opcion {
-      padding: 8px 10px;
-      font-size: 0.85rem;
-      background: #e6eef4;
-      color: var(--texto);
+    .dias-selector button {
+      padding: 8px 4px;
+      border-radius: 12px;
+      background: var(--gris-fondo);
+      font-size: 0.8rem;
+      line-height: 1.25;
     }
-    .opcion.elegida { background: var(--mar); color: #fff; }
+    .dias-selector button strong { display: block; font-size: 0.95rem; }
+    .dias-selector button.elegido { background: var(--mar); color: var(--sobre-mar); }
 
-    #aciertos { margin: 12px 0 0; font-weight: 600; }
+    /* ---------- Filas desplegables (especies y zonas) ---------- */
+    .fila { border-bottom: 1px solid var(--linea); }
+    .fila:last-child { border-bottom: 0; }
+
+    .fila > button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 14px;
+      text-align: left;
+    }
+    .fila .nombre { flex: 1; font-weight: 600; font-size: 1.05rem; }
+    .fila .flecha { color: var(--suave); transition: transform 0.15s; }
+    .fila.abierta .flecha { transform: rotate(90deg); }
+
+    .detalle { display: none; padding: 0 14px 12px; }
+    .fila.abierta .detalle { display: block; }
+
+    .motivo {
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      padding: 5px 0;
+      font-size: 0.9rem;
+    }
+    .motivo .punto { width: 10px; height: 10px; position: relative; top: 1px; }
+    .motivo small { color: var(--suave); }
+
+    /* ---------- Consejo ---------- */
+    #consejo {
+      margin: 12px 0 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--amarillo-fondo);
+      color: var(--amarillo-texto);
+      font-size: 0.95rem;
+    }
+    #consejo:empty { display: none; }
 
     /* ---------- Zonas ---------- */
-    #zonas { display: grid; gap: 12px; }
+    .cabecera-zonas, .fila-zona > button {
+      display: grid;
+      grid-template-columns: 1fr repeat(var(--columnas), 40px) 16px;
+      align-items: center;
+      gap: 4px;
+    }
+    .cabecera-zonas {
+      padding: 10px 14px 6px;
+      font-size: 0.7rem;
+      color: var(--suave);
+      text-align: center;
+      white-space: nowrap;
+    }
+    .fila-zona > button .punto { justify-self: center; }
+    .fila-zona .nombre { font-size: 0.95rem; }
 
-    .zona h3 { margin: 0; font-size: 1.05rem; }
-    .zona .que { margin: 0 0 10px; font-size: 0.85rem; color: var(--suave); }
+    .dia-zona { padding: 6px 0; border-top: 1px dashed var(--linea); font-size: 0.9rem; }
+    .dia-zona:first-child { border-top: 0; }
+    .dia-zona .tiempo { color: var(--suave); font-size: 0.8rem; }
 
-    .dias { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .enlace { display: inline-block; margin-top: 8px; color: var(--mar); font-weight: 600; font-size: 0.9rem; }
 
-    .dia {
-      border-radius: 8px;
-      padding: 8px;
+    /* ---------- Registro ---------- */
+    .fila-registro { padding: 12px 14px; border-bottom: 1px solid var(--linea); }
+    .fila-registro:last-child { border-bottom: 0; }
+    .fila-registro .nombre { font-weight: 600; margin-bottom: 8px; }
+    .opciones { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .opcion {
+      padding: 12px 4px;
+      border-radius: 10px;
+      background: var(--gris-fondo);
+      font-size: 0.9rem;
+    }
+    .opcion.elegida { background: var(--mar); color: var(--sobre-mar); font-weight: 700; }
+
+    #aciertos { margin: 14px 0 6px; font-weight: 700; font-size: 1.05rem; }
+    #historial { margin: 0 0 14px; padding: 0; list-style: none; font-size: 0.9rem; color: var(--suave); }
+
+    #exportar {
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: var(--gris-fondo);
+      font-size: 0.9rem;
+    }
+
+    .aviso { margin: 20px 0 0; font-size: 0.78rem; color: var(--suave); }
+
+    /* ---------- Barra de pestañas ---------- */
+    nav {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: var(--tarjeta);
+      border-top: 1px solid var(--linea);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    nav button {
+      padding: 10px 4px 12px;
       font-size: 0.8rem;
-      background: #f3f7fa;
+      color: var(--suave);
     }
-    .dia .fecha { font-weight: 700; }
-    .dia .tiempo { margin: 2px 0 6px; color: var(--suave); }
-
-    .arte {
-      margin: 4px 0 0;
-      padding: 4px 6px;
-      border-radius: 6px;
-      border-left: 4px solid;
-    }
-    .arte small { display: block; font-weight: 400; }
-
-    .enlace { display: inline-block; margin-top: 8px; color: var(--mar); font-weight: 600; }
-
-    .aviso { margin: 24px 0 0; font-size: 0.85rem; color: var(--suave); }
+    nav button span { display: block; font-size: 1.3rem; line-height: 1.3; }
+    nav button.activa { color: var(--mar); font-weight: 700; }
   </style>
 </head>
 
 <body>
   <main>
-    <h1>Parte del Mar</h1>
-    <p class="subtitulo">¿Habrá pescado? Previsión a 3 días por especie y zona.</p>
-
-    <button id="recargar">Actualizar</button>
+    <header>
+      <h1>Parte del Mar</h1>
+      <button id="recargar" aria-label="Actualizar datos">↻ Actualizar</button>
+    </header>
     <p id="estado"></p>
 
-    <h2>Por especie</h2>
-    <p class="ayuda">Día de pesca. Lo pescado un día suele llegar a Mercacórdoba al día siguiente.</p>
-    <div class="caja"><div id="especies"></div></div>
+    <!-- PESTAÑA 1: COMPRA -->
+    <section class="pantalla" id="pantalla-compra">
+      <h2>¿Qué llega al Merca?</h2>
+      <p class="ayuda">Elige el día de llegada. Toca una especie para ver el motivo.</p>
+      <div class="dias-selector" id="dias"></div>
+      <div class="caja" id="especies"></div>
+      <p id="consejo"></p>
+    </section>
 
-    <h2>Registro de hoy en Mercacórdoba</h2>
-    <p class="ayuda">Apunta cómo llegó cada especie. La app lo compara con lo que predijo para ayer y te dice cuánto acierta.</p>
-    <div class="caja">
-      <div id="registro"></div>
+    <!-- PESTAÑA 2: ZONAS -->
+    <section class="pantalla" id="pantalla-zonas" hidden>
+      <h2>Zonas de pesca</h2>
+      <p class="ayuda">Por día de pesca. Toca una zona para ver viento, olas y vedas.</p>
+      <div class="caja" id="zonas"></div>
+    </section>
+
+    <!-- PESTAÑA 3: REGISTRO -->
+    <section class="pantalla" id="pantalla-registro" hidden>
+      <h2>¿Cómo llegó hoy al Merca?</h2>
+      <p class="ayuda">Apúntalo cada día: así sabrás cuánto acierta la previsión.</p>
+      <div class="caja" id="registro"></div>
       <p id="aciertos"></p>
-      <button id="exportar">Descargar copia del registro</button>
-    </div>
-
-    <h2>Por zona</h2>
-    <div id="zonas"></div>
+      <ul id="historial"></ul>
+      <button id="exportar">⬇ Descargar copia del registro</button>
+    </section>
 
     <p class="aviso">
-      Viento en km/h. Colores orientativos.
-      Tiempo: rojo con viento ≥ 50 km/h u ola ≥ 2,5 m; amarillo con viento ≥ 39 km/h u ola ≥ 1,25 m.
-      Además: vedas del BOE (rojo; lista en config.json), luna llena en cerco (amarillo, por confirmar) y fines de semana en España (amarillo, por confirmar).
-      No sustituye al parte oficial ni a la decisión de Capitanía o la cofradía.
+      Orientativo. Tiempo: rojo con viento ≥ 50 km/h u ola ≥ 2,5 m; amarillo con viento ≥ 39 km/h u ola ≥ 1,25 m.
+      Además: vedas del BOE (rojo), luna llena en cerco y fines de semana en España (amarillo, por confirmar).
+      Se supone que lo pescado un día llega al Merca al día siguiente.
+      Viento: MET Norway. Olas: Copernicus Marine. No sustituye al parte oficial.
     </p>
   </main>
+
+  <nav>
+    <button data-pantalla="compra"><span>🛒</span>Compra</button>
+    <button data-pantalla="zonas"><span>🌊</span>Zonas</button>
+    <button data-pantalla="registro"><span>📝</span>Registro</button>
+  </nav>
 
   <script src="logica.js"></script>
   <script>
@@ -179,8 +295,11 @@
     // y la lógica del semáforo en logica.js. Aquí solo se pinta la página.
     // =====================================================================
 
-    let L = null;   // la lógica, cuando se haya cargado config.json
+    let L = null;        // la lógica, cuando se haya cargado config.json
+    let datos = null;    // datos.json del robot
+    let llegadaElegida = null;   // día de llegada elegido en la pestaña Compra
 
+    // ---------- Utilidades ----------
     function numero(valor, decimales) {
       if (valor === null || valor === undefined) return "?";
       return valor.toFixed(decimales).replace(".", ",");
@@ -193,25 +312,22 @@
       return `${f.getFullYear()}-${m}-${d}`;
     }
 
-    // "Hoy", "Mañana", "Pasado" o "Ayer" según la fecha real
+    // "Hoy", "Mañana"... según la fecha real
     function etiquetaDia(fecha) {
       const dias = Math.round((L.aFecha(fecha) - L.aFecha(hoyTexto())) / 86400000);
       return { "-1": "Ayer", "0": "Hoy", "1": "Mañana", "2": "Pasado" }[dias] || "";
     }
 
-    // ---------- Memoria del móvil (registro y predicciones) ----------
-    // Se guarda solo en este navegador. Si no se puede, la app sigue funcionando.
+    // Memoria del móvil. Si el navegador no deja guardar, la app sigue funcionando.
     function leer(clave) {
       try { return JSON.parse(localStorage.getItem(clave)) || {}; }
       catch (e) { return {}; }
     }
-
     function guardar(clave, valor) {
       try { localStorage.setItem(clave, JSON.stringify(valor)); return true; }
       catch (e) { return false; }
     }
 
-    // ---------- Descargar archivos de la propia web ----------
     async function cargarJSON(nombre) {
       // "?t=" evita que el navegador muestre una copia antigua guardada
       const respuesta = await fetch(nombre + "?t=" + Date.now());
@@ -219,102 +335,201 @@
       return respuesta.json();
     }
 
-    // ---------- Pintar ----------
     const estado = document.getElementById("estado");
-
     function mostrarMensaje(texto, esError) {
       estado.textContent = texto;
       estado.className = esError ? "error" : "";
     }
 
-    function pintarEspecies(datosPorZona, fechas) {
-      const prediccionesGuardadas = leer("pdm-predicciones");
+    // Abrir y cerrar filas desplegables (especies y zonas)
+    document.addEventListener("click", ev => {
+      const boton = ev.target.closest(".fila > button");
+      if (!boton) return;
+      const abierta = boton.parentElement.classList.toggle("abierta");
+      boton.setAttribute("aria-expanded", abierta);
+    });
 
-      const filas = L.ESPECIES.map(especie => {
-        const celdas = fechas.map(fecha => {
-          const o = L.ofertaEspecie(especie, datosPorZona, fecha);
-          if (!o) return `<td><span class="chip">?</span></td>`;
-          prediccionesGuardadas[fecha] = prediccionesGuardadas[fecha] || {};
-          prediccionesGuardadas[fecha][especie.id] = o.nivel;
-          return `<td><span class="chip ${o.color}">${o.texto}</span></td>`;
+    // ---------- Pestañas ----------
+    function mostrarPantalla(nombre) {
+      document.querySelectorAll(".pantalla").forEach(p => { p.hidden = p.id !== "pantalla-" + nombre; });
+      document.querySelectorAll("nav button").forEach(b => b.classList.toggle("activa", b.dataset.pantalla === nombre));
+      window.scrollTo(0, 0);
+    }
+    document.querySelector("nav").addEventListener("click", ev => {
+      const boton = ev.target.closest("button");
+      if (boton) mostrarPantalla(boton.dataset.pantalla);
+    });
+
+    // ---------- Pestaña COMPRA ----------
+    // El pescado llega al Merca al día siguiente de pescarse.
+    function pintarCompra() {
+      const llegadas = datos.fechas.map(f => L.sumarDias(f, 1));
+      if (!llegadas.includes(llegadaElegida)) {
+        // De madrugada interesa lo que llega hoy; el resto del día, lo de mañana
+        const hoy = hoyTexto(), manana = L.sumarDias(hoy, 1);
+        llegadaElegida = (new Date().getHours() < 10 && llegadas.includes(hoy)) ? hoy
+                       : llegadas.includes(manana) ? manana : llegadas[0];
+      }
+
+      document.getElementById("dias").innerHTML = llegadas.map(f => `
+        <button data-fecha="${f}" class="${f === llegadaElegida ? "elegido" : ""}">
+          ${etiquetaDia(f) || "&nbsp;"}<strong>${L.corta(f)}</strong>
+        </button>`).join("");
+
+      const pesca = L.sumarDias(llegadaElegida, -1);
+      document.getElementById("especies").innerHTML = L.ESPECIES.map(especie => {
+        const o = L.ofertaEspecie(especie, datos.zonas, pesca);
+        const motivos = especie.origen.map(([zonaId, arte]) => {
+          const zona = L.ZONAS.find(z => z.id === zonaId);
+          const dia = (datos.zonas[zonaId] || []).find(d => d.fecha === pesca);
+          if (!dia) return `<div class="motivo"><span class="punto gris"></span><span>${zona.nombre} <small>sin datos</small></span></div>`;
+          const c = L.colorArte(zona, arte, dia, especie.id);
+          const porque = c.motivos.length ? c.motivos.join(", ") : "todo en orden";
+          return `<div class="motivo"><span class="punto ${c.color}"></span>
+                    <span>${zona.nombre}: <strong>${c.texto.toLowerCase()}</strong> <small>· ${porque}</small></span></div>`;
         }).join("");
-        return `<tr><td class="especie">${especie.nombre}</td>${celdas}</tr>`;
+        return `
+          <div class="fila">
+            <button aria-expanded="false">
+              <span class="punto ${o ? o.color : "gris"}"></span>
+              <span class="nombre">${especie.nombre}</span>
+              <span class="etiqueta ${o ? o.color : ""}">${o ? o.texto : "Sin datos"}</span>
+              <span class="flecha">›</span>
+            </button>
+            <div class="detalle">
+              <div class="motivo"><small>Pescado el ${L.larga(pesca)}:</small></div>
+              ${motivos}
+            </div>
+          </div>`;
       }).join("");
 
-      // Guardamos lo que predice para poder compararlo más adelante
-      guardar("pdm-predicciones", prediccionesGuardadas);
-
-      const cabecera = fechas.map(f => `<th>${etiquetaDia(f)}<br>${L.corta(f)}</th>`).join("");
-      document.getElementById("especies").innerHTML =
-        `<table><tr><th></th>${cabecera}</tr>${filas}</table>`;
+      // Consejo: si el día siguiente al elegido va a faltar algo, conviene adelantar compra
+      const siguientePesca = L.sumarDias(pesca, 1);
+      const faltara = !datos.fechas.includes(siguientePesca) ? [] : L.ESPECIES.filter(e => {
+        const o = L.ofertaEspecie(e, datos.zonas, siguientePesca);
+        return o && o.nivel === "nada";
+      }).map(e => e.nombre.toLowerCase());
+      document.getElementById("consejo").innerHTML = faltara.length
+        ? `👉 El ${L.larga(L.sumarDias(llegadaElegida, 1))} faltará <strong>${faltara.join(", ")}</strong>: valora comprar de más.`
+        : "";
     }
 
-    function pintarZonas(datosPorZona) {
-      document.getElementById("zonas").innerHTML = L.ZONAS.map(zona => {
-        const dias = datosPorZona[zona.id];
-        const enlace = zona.enlace ? `<a class="enlace" href="${zona.enlace.url}" target="_blank" rel="noopener">${zona.enlace.texto}</a>` : "";
-        if (!dias) {
-          return `<article class="zona caja"><h3>${zona.nombre}</h3><p class="que">${zona.que}</p>
-                  <p class="error">Todavía no hay datos de esta zona.</p>${enlace}</article>`;
-        }
-        const columnas = dias.map(dia => {
+    document.getElementById("dias").addEventListener("click", ev => {
+      const boton = ev.target.closest("button");
+      if (!boton) return;
+      llegadaElegida = boton.dataset.fecha;
+      pintarCompra();
+    });
+
+    // Guarda lo que predice la app para cada día de pesca, para medir aciertos después.
+    // Los días ya pasados no se tocan: cuenta lo que se predijo en su momento.
+    function guardarPredicciones() {
+      const guardadas = leer("pdm-predicciones");
+      const hoy = hoyTexto();
+      datos.fechas.forEach(fecha => {
+        if (fecha < hoy && guardadas[fecha]) return;
+        L.ESPECIES.forEach(e => {
+          const o = L.ofertaEspecie(e, datos.zonas, fecha);
+          if (!o) return;
+          guardadas[fecha] = guardadas[fecha] || {};
+          guardadas[fecha][e.id] = o.nivel;
+        });
+      });
+      guardar("pdm-predicciones", guardadas);
+    }
+
+    // ---------- Pestaña ZONAS ----------
+    const PEOR = { verde: 0, amarillo: 1, rojo: 2 };
+
+    function pintarZonas() {
+      const fechas = datos.fechas;
+      const caja = document.getElementById("zonas");
+      caja.style.setProperty("--columnas", fechas.length);
+
+      const cabecera = `<div class="cabecera-zonas"><span></span>${fechas.map(f => `<span>${L.corta(f)}</span>`).join("")}<span></span></div>`;
+
+      caja.innerHTML = cabecera + L.ZONAS.map(zona => {
+        const dias = datos.zonas[zona.id] || [];
+        const puntos = fechas.map(f => {
+          const dia = dias.find(d => d.fecha === f);
+          if (!dia) return `<span class="punto gris"></span>`;
+          // El color de la zona es el de su peor arte ese día
+          const color = zona.artes.map(a => L.colorArte(zona, a, dia).color)
+                                  .reduce((x, y) => PEOR[y] > PEOR[x] ? y : x, "verde");
+          return `<span class="punto ${color}"></span>`;
+        }).join("");
+
+        const detalle = dias.map(dia => {
           const artes = zona.artes.map(arte => {
             const c = L.colorArte(zona, arte, dia);
             const porque = c.motivos.length ? c.motivos.join(", ") : "todo en orden";
-            return `<div class="arte ${c.color}"><strong>${L.ARTES[arte].nombre}: ${c.texto}</strong><small>${porque}</small></div>`;
+            return `<div class="motivo"><span class="punto ${c.color}"></span>
+                      <span>${L.ARTES[arte].nombre}: <strong>${c.texto.toLowerCase()}</strong> <small>· ${porque}</small></span></div>`;
           }).join("");
-          const avisos = L.vedasDeEspecie(zona.id, dia.fecha).map(v => {
+          const vedas = L.vedasDeEspecie(zona.id, dia.fecha).map(v => {
             const nombre = L.ESPECIES.find(e => e.id === v.especie).nombre;
-            return `<div class="arte rojo"><strong>${nombre}: en veda</strong><small>${v.motivo}</small></div>`;
+            return `<div class="motivo"><span class="punto rojo"></span><span>${nombre}: <strong>en veda</strong> <small>· ${v.motivo}</small></span></div>`;
           }).join("");
-          return `<div class="dia">
-                    <div class="fecha">${L.corta(dia.fecha)}</div>
-                    <div class="tiempo">Ola ${numero(dia.ola, 1)} m · Viento ${numero(dia.viento, 0)}</div>
-                    ${artes}${avisos}
+          return `<div class="dia-zona">
+                    <strong>${L.larga(dia.fecha)}</strong>
+                    <span class="tiempo">· ola ${numero(dia.ola, 1)} m · viento ${numero(dia.viento, 0)} km/h</span>
+                    ${artes}${vedas}
                   </div>`;
-        }).join("");
-        return `<article class="zona caja"><h3>${zona.nombre}</h3><p class="que">${zona.que}</p>
-                <div class="dias">${columnas}</div>${enlace}</article>`;
+        }).join("") || `<div class="motivo"><small>Todavía no hay datos de esta zona.</small></div>`;
+
+        const enlace = zona.enlace ? `<a class="enlace" href="${zona.enlace.url}" target="_blank" rel="noopener">${zona.enlace.texto}</a>` : "";
+
+        return `
+          <div class="fila fila-zona">
+            <button aria-expanded="false">
+              <span class="nombre">${zona.nombre}</span>${puntos}<span class="flecha">›</span>
+            </button>
+            <div class="detalle"><div class="motivo"><small>${zona.que}</small></div>${detalle}${enlace}</div>
+          </div>`;
       }).join("");
     }
 
-    // ---------- Registro ----------
+    // ---------- Pestaña REGISTRO ----------
     const OPCIONES = [["bien", "Hubo bien"], ["poco", "Poco"], ["nada", "No hubo"]];
 
     function pintarRegistro() {
-      if (!L) return;
-      const hoy = hoyTexto();
-      const deHoy = leer("pdm-registro")[hoy] || {};
-
+      const deHoy = leer("pdm-registro")[hoyTexto()] || {};
       document.getElementById("registro").innerHTML = L.ESPECIES.map(e => `
         <div class="fila-registro">
-          <span class="nombre">${e.nombre}</span>
-          ${OPCIONES.map(([valor, texto]) => `
-            <button class="opcion ${deHoy[e.id] === valor ? "elegida" : ""}"
-                    data-especie="${e.id}" data-valor="${valor}">${texto}</button>`).join("")}
+          <div class="nombre">${e.nombre}</div>
+          <div class="opciones">
+            ${OPCIONES.map(([valor, texto]) => `
+              <button class="opcion ${deHoy[e.id] === valor ? "elegida" : ""}"
+                      data-especie="${e.id}" data-valor="${valor}">${texto}</button>`).join("")}
+          </div>
         </div>`).join("");
-
       pintarAciertos();
     }
 
-    // Compara lo que llegó un día con lo que la app predijo para el día de pesca anterior
+    // Compara lo que llegó cada día con lo que la app predijo para el día de pesca anterior
     function pintarAciertos() {
       const registro = leer("pdm-registro");
       const predicciones = leer("pdm-predicciones");
       let total = 0, aciertos = 0;
+      const porDia = [];
 
-      Object.keys(registro).forEach(fecha => {
+      Object.keys(registro).sort().reverse().forEach(fecha => {
         const prediccion = predicciones[L.sumarDias(fecha, -1)] || {};
+        let t = 0, a = 0;
         Object.keys(registro[fecha]).forEach(especie => {
           if (!prediccion[especie]) return;      // no había predicción guardada
-          total++;
-          if (prediccion[especie] === registro[fecha][especie]) aciertos++;
+          t++;
+          if (prediccion[especie] === registro[fecha][especie]) a++;
         });
+        total += t; aciertos += a;
+        porDia.push(`<li>${L.larga(fecha)}: ${t ? `${a} de ${t} aciertos` : "apuntado, sin previsión guardada para comparar"}</li>`);
       });
 
       document.getElementById("aciertos").textContent = total
         ? `Aciertos: ${aciertos} de ${total} (${Math.round(100 * aciertos / total)} %)`
-        : "Aún no hay datos para comparar. Hacen falta al menos dos días seguidos usando la app.";
+        : "Aún no hay aciertos que contar.";
+      document.getElementById("historial").innerHTML = porDia.slice(0, 7).join("")
+        || "<li>Apunta hoy y mañana para empezar a comparar.</li>";
     }
 
     document.getElementById("registro").addEventListener("click", ev => {
@@ -344,7 +559,7 @@
     async function cargarTodo() {
       mostrarMensaje("Cargando…", false);
 
-      let config, datos;
+      let config;
       try {
         [config, datos] = await Promise.all([cargarJSON("config.json"), cargarJSON("datos.json")]);
       } catch (e) {
@@ -353,19 +568,21 @@
       }
 
       L = crearLogica(config);
-      pintarEspecies(datos.zonas, datos.fechas);
-      pintarZonas(datos.zonas);
+      guardarPredicciones();
+      pintarCompra();
+      pintarZonas();
       pintarRegistro();
 
       // Cuándo se descargaron los datos
       const generado = new Date(datos.generado);
       const horas = Math.round((Date.now() - generado) / 3600000);
       const hora = generado.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
-      const texto = `Datos de ${L.larga(L.aTexto(generado))}, ${hora} (hace ${horas} h). Viento: MET Norway · Olas: Copernicus Marine.`;
-      mostrarMensaje(horas > 12 ? texto + " ¡Datos antiguos: el robot puede estar fallando!" : texto, horas > 12);
+      const texto = `Datos de ${L.larga(L.aTexto(generado))}, ${hora} (hace ${horas} h)`;
+      mostrarMensaje(horas > 12 ? texto + ". ¡Datos antiguos: el robot puede estar fallando!" : texto, horas > 12);
     }
 
     document.getElementById("recargar").addEventListener("click", cargarTodo);
+    mostrarPantalla("compra");
     cargarTodo();
   </script>
 </body>

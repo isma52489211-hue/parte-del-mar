@@ -22,7 +22,7 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 ZONA_HORARIA = ZoneInfo("Europe/Madrid")
-DIAS = 3
+DIAS = 4   # ayer (lo que se compra de madrugada), hoy y los dos días siguientes
 SALIDA = os.path.join(os.path.dirname(__file__), "..", "datos.json")
 
 # MET Norway pide identificarse: nombre de la app y dónde contactar
@@ -42,9 +42,9 @@ with open(CONFIG, encoding="utf-8") as _archivo:
 
 
 def fechas_previstas():
-    """Hoy y los dos días siguientes, en hora de Madrid, como 'AAAA-MM-DD'."""
+    """Ayer, hoy y los dos días siguientes, en hora de Madrid, como 'AAAA-MM-DD'."""
     hoy = datetime.now(ZONA_HORARIA).date()
-    return [(hoy + timedelta(days=i)).isoformat() for i in range(DIAS)]
+    return [(hoy + timedelta(days=i - 1)).isoformat() for i in range(DIAS)]
 
 
 def maximo_por_dia(pares, fechas):
@@ -175,10 +175,15 @@ def main():
 
         # Si una fuente falló, reutilizamos el último valor bueno para esa fecha
         previo = {d["fecha"]: d for d in anteriores.get(zona["id"], [])}
+        hoy = datetime.now(ZONA_HORARIA).date().isoformat()
         def valor(nuevos, clave, f, decimales):
-            if f in nuevos:
-                return round(nuevos[f], decimales)
-            return previo.get(f, {}).get(clave)
+            nuevo = round(nuevos[f], decimales) if f in nuevos else None
+            antes = previo.get(f, {}).get(clave)
+            # La previsión de viento solo trae las horas que quedan del día: para hoy
+            # y ayer conservamos el máximo ya visto, para no perder el de la mañana.
+            if clave == "viento" and f <= hoy and nuevo is not None and antes is not None:
+                return max(nuevo, antes)
+            return nuevo if nuevo is not None else antes
 
         resultado["zonas"][zona["id"]] = [
             {

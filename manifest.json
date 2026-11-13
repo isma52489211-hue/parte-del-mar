@@ -1,0 +1,15 @@
+{
+  "name": "Parte del Mar",
+  "short_name": "Parte del Mar",
+  "description": "Previsión de pescado por especie y zona",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b5c8a",
+  "theme_color": "#0b5c8a",
+  "lang": "es",
+  "icons": [
+    { "src": "icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
