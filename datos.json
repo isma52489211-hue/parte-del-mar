@@ -1,5 +1,5 @@
 {
- "generado": "2026-11-26T01:00+00:00",
+ "generado": "2026-11-26T03:39+00:00",
  "fechas": [
   "2026-11-25",
   "2026-11-26",
@@ -12,22 +12,22 @@
    {
     "fecha": "2026-11-25",
     "viento": 31.7,
-    "ola": 0.61
+    "ola": 0.6
    },
    {
     "fecha": "2026-11-26",
     "viento": 27.0,
-    "ola": 0.6
+    "ola": 0.58
    },
    {
     "fecha": "2026-11-27",
-    "viento": 20.5,
+    "viento": 19.4,
     "ola": 0.33
    },
    {
     "fecha": "2026-11-28",
     "viento": 22.3,
-    "ola": 0.31
+    "ola": 0.3
    }
   ],
   "cadiz": [
@@ -38,17 +38,17 @@
    },
    {
     "fecha": "2026-11-26",
-    "viento": 26.6,
-    "ola": 1.04
+    "viento": 27.4,
+    "ola": 1.03
    },
    {
     "fecha": "2026-11-27",
-    "viento": 22.3,
-    "ola": 0.71
+    "viento": 22.7,
+    "ola": 0.72
    },
    {
     "fecha": "2026-11-28",
-    "viento": 21.2,
+    "viento": 22.0,
     "ola": 0.53
    }
   ],
@@ -56,154 +56,154 @@
    {
     "fecha": "2026-11-25",
     "viento": 28.8,
-    "ola": 0.51
+    "ola": 0.62
    },
    {
     "fecha": "2026-11-26",
     "viento": 27.4,
-    "ola": 0.43
+    "ola": 0.42
    },
    {
     "fecha": "2026-11-27",
-    "viento": 25.2,
+    "viento": 27.4,
     "ola": 0.32
    },
    {
     "fecha": "2026-11-28",
-    "viento": 10.4,
-    "ola": 0.21
+    "viento": 11.5,
+    "ola": 0.24
    }
   ],
   "almeria": [
    {
     "fecha": "2026-11-25",
     "viento": 48.6,
-    "ola": 2.41
+    "ola": 2.51
    },
    {
     "fecha": "2026-11-26",
     "viento": 18.4,
-    "ola": 1.47
+    "ola": 1.62
    },
    {
     "fecha": "2026-11-27",
-    "viento": 13.0,
-    "ola": 0.6
+    "viento": 12.2,
+    "ola": 0.64
    },
    {
     "fecha": "2026-11-28",
-    "viento": 12.2,
-    "ola": 0.22
+    "viento": 16.9,
+    "ola": 0.24
    }
   ],
   "alicante": [
    {
     "fecha": "2026-11-25",
     "viento": 40.3,
-    "ola": 1.01
+    "ola": 1.02
    },
    {
     "fecha": "2026-11-26",
     "viento": 37.4,
-    "ola": 0.92
+    "ola": 0.95
    },
    {
     "fecha": "2026-11-27",
-    "viento": 30.2,
-    "ola": 0.63
+    "viento": 29.9,
+    "ola": 0.69
    },
    {
     "fecha": "2026-11-28",
-    "viento": 19.8,
-    "ola": 0.59
+    "viento": 19.4,
+    "ola": 0.6
    }
   ],
   "levante": [
    {
     "fecha": "2026-11-25",
     "viento": 52.6,
-    "ola": 1.11
+    "ola": 1.09
    },
    {
     "fecha": "2026-11-26",
-    "viento": 41.8,
-    "ola": 0.89
+    "viento": 42.5,
+    "ola": 0.91
    },
    {
     "fecha": "2026-11-27",
     "viento": 26.3,
-    "ola": 0.63
+    "ola": 0.61
    },
    {
     "fecha": "2026-11-28",
-    "viento": 19.1,
-    "ola": 0.44
+    "viento": 20.2,
+    "ola": 0.42
    }
   ],
   "castellon": [
    {
     "fecha": "2026-11-25",
     "viento": 46.1,
-    "ola": 1.21
+    "ola": 1.15
    },
    {
     "fecha": "2026-11-26",
     "viento": 37.4,
-    "ola": 0.81
+    "ola": 0.9
    },
    {
     "fecha": "2026-11-27",
-    "viento": 23.8,
-    "ola": 0.57
+    "viento": 25.9,
+    "ola": 0.62
    },
    {
     "fecha": "2026-11-28",
-    "viento": 10.4,
-    "ola": 0.44
+    "viento": 13.7,
+    "ola": 0.5
    }
   ],
   "tarragona": [
    {
     "fecha": "2026-11-25",
     "viento": 46.4,
-    "ola": 1.58
+    "ola": 1.17
    },
    {
     "fecha": "2026-11-26",
     "viento": 48.6,
-    "ola": 1.43
+    "ola": 1.4
    },
    {
     "fecha": "2026-11-27",
-    "viento": 36.7,
-    "ola": 0.75
+    "viento": 32.8,
+    "ola": 0.86
    },
    {
     "fecha": "2026-11-28",
-    "viento": 11.5,
-    "ola": 0.55
+    "viento": 17.3,
+    "ola": 0.4
    }
   ],
   "barcelona": [
    {
     "fecha": "2026-11-25",
     "viento": 47.9,
-    "ola": 1.61
+    "ola": 1.56
    },
    {
     "fecha": "2026-11-26",
     "viento": 33.1,
-    "ola": 1.09
+    "ola": 1.38
    },
    {
     "fecha": "2026-11-27",
-    "viento": 25.2,
-    "ola": 0.66
+    "viento": 25.6,
+    "ola": 0.74
    },
    {
     "fecha": "2026-11-28",
-    "viento": 17.6,
-    "ola": 0.62
+    "viento": 16.9,
+    "ola": 0.49
    }
   ],
   "galicia": [
@@ -219,101 +219,101 @@
    },
    {
     "fecha": "2026-11-27",
-    "viento": 31.0,
-    "ola": 2.84
+    "viento": 31.3,
+    "ola": 2.85
    },
    {
     "fecha": "2026-11-28",
-    "viento": 40.0,
-    "ola": 2.98
+    "viento": 36.4,
+    "ola": 3.05
    }
   ],
   "lugo": [
    {
     "fecha": "2026-11-25",
     "viento": 52.2,
-    "ola": 3.81
+    "ola": 3.82
    },
    {
     "fecha": "2026-11-26",
-    "viento": 29.2,
+    "viento": 31.0,
     "ola": 2.69
    },
    {
     "fecha": "2026-11-27",
-    "viento": 26.3,
-    "ola": 2.77
+    "viento": 25.6,
+    "ola": 2.81
    },
    {
     "fecha": "2026-11-28",
-    "viento": 25.9,
-    "ola": 3.03
+    "viento": 29.5,
+    "ola": 3.13
    }
   ],
   "asturias": [
    {
     "fecha": "2026-11-25",
     "viento": 62.3,
-    "ola": 4.27
+    "ola": 4.24
    },
    {
     "fecha": "2026-11-26",
     "viento": 40.3,
-    "ola": 3.0
+    "ola": 2.95
    },
    {
     "fecha": "2026-11-27",
-    "viento": 27.7,
-    "ola": 2.41
+    "viento": 27.0,
+    "ola": 2.45
    },
    {
     "fecha": "2026-11-28",
-    "viento": 18.7,
-    "ola": 2.86
+    "viento": 17.6,
+    "ola": 2.93
    }
   ],
   "cantabrico": [
    {
     "fecha": "2026-11-25",
     "viento": 82.8,
-    "ola": 5.53
+    "ola": 5.33
    },
    {
     "fecha": "2026-11-26",
     "viento": 50.8,
-    "ola": 3.66
+    "ola": 3.73
    },
    {
     "fecha": "2026-11-27",
-    "viento": 20.5,
-    "ola": 2.02
+    "viento": 27.7,
+    "ola": 2.11
    },
    {
     "fecha": "2026-11-28",
-    "viento": 15.1,
-    "ola": 2.95
+    "viento": 11.5,
+    "ola": 2.97
    }
   ],
   "euskadi": [
    {
     "fecha": "2026-11-25",
     "viento": 83.2,
-    "ola": 5.06
+    "ola": 5.05
    },
    {
     "fecha": "2026-11-26",
-    "viento": 42.1,
-    "ola": 3.44
+    "viento": 42.5,
+    "ola": 3.38
    },
    {
     "fecha": "2026-11-27",
-    "viento": 15.5,
-    "ola": 1.57
+    "viento": 14.4,
+    "ola": 1.73
    },
    {
     "fecha": "2026-11-28",
     "viento": 15.5,
-    "ola": 2.63
+    "ola": 2.65
    }
   ],
   "pt_norte": [
@@ -324,18 +324,18 @@
    },
    {
     "fecha": "2026-11-26",
-    "viento": 24.5,
-    "ola": 2.86
+    "viento": 25.2,
+    "ola": 2.85
    },
    {
     "fecha": "2026-11-27",
-    "viento": 16.6,
-    "ola": 2.22
+    "viento": 17.6,
+    "ola": 2.2
    },
    {
     "fecha": "2026-11-28",
-    "viento": 27.0,
-    "ola": 2.69
+    "viento": 26.3,
+    "ola": 2.72
    }
   ],
   "pt_sur": [
@@ -346,18 +346,18 @@
    },
    {
     "fecha": "2026-11-26",
-    "viento": 25.9,
-    "ola": 0.81
+    "viento": 26.6,
+    "ola": 0.78
    },
    {
     "fecha": "2026-11-27",
-    "viento": 14.0,
-    "ola": 0.53
+    "viento": 14.8,
+    "ola": 0.54
    },
    {
     "fecha": "2026-11-28",
-    "viento": 16.9,
-    "ola": 0.6
+    "viento": 18.0,
+    "ola": 0.63
    }
   ],
   "ma_norte": [
@@ -369,39 +369,39 @@
    {
     "fecha": "2026-11-26",
     "viento": 22.3,
-    "ola": 1.95
+    "ola": 1.94
    },
    {
     "fecha": "2026-11-27",
-    "viento": 30.6,
+    "viento": 28.8,
     "ola": 1.4
    },
    {
     "fecha": "2026-11-28",
-    "viento": 29.5,
-    "ola": 1.41
+    "viento": 27.0,
+    "ola": 1.37
    }
   ],
   "ma_sur": [
    {
     "fecha": "2026-11-25",
     "viento": 51.5,
-    "ola": 3.06
+    "ola": 3.07
    },
    {
     "fecha": "2026-11-26",
-    "viento": 56.2,
-    "ola": 2.93
+    "viento": 57.2,
+    "ola": 2.88
    },
    {
     "fecha": "2026-11-27",
-    "viento": 25.2,
-    "ola": 2.19
+    "viento": 23.4,
+    "ola": 2.25
    },
    {
     "fecha": "2026-11-28",
-    "viento": 27.0,
-    "ola": 1.52
+    "viento": 25.6,
+    "ola": 1.53
    }
   ],
   "francia": [
@@ -413,39 +413,39 @@
    {
     "fecha": "2026-11-26",
     "viento": 47.5,
-    "ola": 1.57
+    "ola": 1.69
    },
    {
     "fecha": "2026-11-27",
-    "viento": 42.8,
-    "ola": 1.41
+    "viento": 44.6,
+    "ola": 1.45
    },
    {
     "fecha": "2026-11-28",
-    "viento": 31.7,
-    "ola": 0.93
+    "viento": 32.0,
+    "ola": 0.82
    }
   ],
   "it_almeja": [
    {
     "fecha": "2026-11-25",
     "viento": 40.0,
-    "ola": 1.11
+    "ola": 1.54
    },
    {
     "fecha": "2026-11-26",
     "viento": 43.6,
-    "ola": 1.61
+    "ola": 1.55
    },
    {
     "fecha": "2026-11-27",
-    "viento": 37.1,
-    "ola": 1.22
+    "viento": 34.6,
+    "ola": 1.18
    },
    {
     "fecha": "2026-11-28",
-    "viento": 40.3,
-    "ola": 1.73
+    "viento": 46.1,
+    "ola": 1.66
    }
   ],
   "it_adriatico": [
@@ -456,84 +456,84 @@
    },
    {
     "fecha": "2026-11-26",
-    "viento": 25.9,
-    "ola": 1.72
+    "viento": 33.1,
+    "ola": 1.66
    },
    {
     "fecha": "2026-11-27",
-    "viento": 21.2,
-    "ola": 1.14
+    "viento": 29.2,
+    "ola": 1.16
    },
    {
     "fecha": "2026-11-28",
-    "viento": 27.0,
-    "ola": 1.47
+    "viento": 30.6,
+    "ola": 1.24
    }
   ],
   "it_adriatico_sur": [
    {
     "fecha": "2026-11-25",
     "viento": 43.2,
-    "ola": 1.61
+    "ola": 1.42
    },
    {
     "fecha": "2026-11-26",
     "viento": 43.9,
-    "ola": 1.73
+    "ola": 1.71
    },
    {
     "fecha": "2026-11-27",
-    "viento": 20.9,
-    "ola": 0.85
+    "viento": 22.0,
+    "ola": 0.81
    },
    {
     "fecha": "2026-11-28",
-    "viento": 39.6,
-    "ola": 2.01
+    "viento": 41.4,
+    "ola": 2.06
    }
   ],
   "it_tirreno": [
    {
     "fecha": "2026-11-25",
     "viento": 50.4,
-    "ola": 2.62
+    "ola": 2.63
    },
    {
     "fecha": "2026-11-26",
     "viento": 47.9,
-    "ola": 2.29
+    "ola": 2.33
    },
    {
     "fecha": "2026-11-27",
-    "viento": 22.7,
-    "ola": 1.7
+    "viento": 17.3,
+    "ola": 1.79
    },
    {
     "fecha": "2026-11-28",
-    "viento": 36.4,
-    "ola": 1.18
+    "viento": 41.0,
+    "ola": 1.15
    }
   ],
   "it_sicilia": [
    {
     "fecha": "2026-11-25",
     "viento": 36.0,
-    "ola": 1.59
+    "ola": 1.54
    },
    {
     "fecha": "2026-11-26",
     "viento": 42.8,
-    "ola": 1.6
+    "ola": 1.54
    },
    {
     "fecha": "2026-11-27",
-    "viento": 28.1,
-    "ola": 1.19
+    "viento": 28.8,
+    "ola": 1.23
    },
    {
     "fecha": "2026-11-28",
-    "viento": 34.6,
-    "ola": 1.89
+    "viento": 42.8,
+    "ola": 1.85
    }
   ],
   "mauritania": [
@@ -544,17 +544,17 @@
    },
    {
     "fecha": "2026-11-26",
-    "viento": 24.8,
+    "viento": 25.6,
     "ola": 2.06
    },
    {
     "fecha": "2026-11-27",
-    "viento": 28.8,
+    "viento": 28.1,
     "ola": 2.02
    },
    {
     "fecha": "2026-11-28",
-    "viento": 15.5,
+    "viento": 12.2,
     "ola": 1.3
    }
   ]
